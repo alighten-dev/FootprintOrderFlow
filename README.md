@@ -55,7 +55,7 @@ POC Position. Indicates the relative position of the Point of Control within the
 **DeltaPerVolume:**
 Delta per Volume. This is the ratio of the bar’s delta to its total volume, providing a normalized measure of net buying or selling pressure.
 
-VolSeq:
+**VolSeq:**
 Volume Sequence Signal. This signal detects a sequential increase or decrease in volume across the aggregated price bins.
 
 **StackImb:**
