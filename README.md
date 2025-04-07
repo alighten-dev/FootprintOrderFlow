@@ -20,6 +20,7 @@ I created this indicator to work as a standalone indicator, but more importantly
 
 
 **Plots**
+
 I have added plots for the following Order Flow values and signals. 
 
 **AggDelta:**
@@ -91,7 +92,9 @@ Value Area Gap Signal. Detects gaps between the current bar’s value area and t
 **LargeRatio:**
 Large Ratio Signal. Activated when a calculated volume ratio exceeds a set threshold, flagging potential market imbalances.
 
+
 **From your strategy**
+
 Reference the object as usual.
 ```
 private FootprintOrderFlowIndicator footprint1;
