@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/19dfac59-e347-475f-8668-d71474e131f6)# FootprintOrderFlow
+# FootprintOrderFlow
 NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC and Value Area, plus signals. Additional plots are designed for integration with strategies.
 
 **Important**
@@ -10,7 +10,7 @@ NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume
 The Bid/Ask aggregation logic was copied from the great work by iotecdotdev at https://github.com/iotecdotdev/iotecOFPlus. Check out his Footprint indicator. It's great!
 
 **About**
-I created this indicator to work as a standalone indicator, but more importantly, to be integrated into your strategies. The indicator has three main components; the footprint, the summary table, and the signal grid. I have also included a legend so that you quickly translate the signal grid. Each of these can be turned off individually, and all of them can be turned off to improve your strategy's performance.
+I created this indicator to work as a standalone indicator, but more importantly, to be integrated into your strategies. The indicator has three main components: the footprint, the summary table, and the signal grid. I have also included a legend so that you can quickly translate the signal grid. Each of these can be turned off individually, and all of them can be turned off to improve your strategy's performance.
 
 **Complete Footprint Indicator**
 ![image](https://github.com/user-attachments/assets/0e2eb157-7f17-49b3-8705-2eb840077c7f)
