@@ -22,73 +22,73 @@ I created this indicator to work as a standalone indicator, but more importantly
 **Plots**
 I have added plots for the following Order Flow values and signals. 
 
-AggDelta:
+**AggDelta:**
 Aggregated Delta. This is the net delta (ask minus bid volume) calculated by summing the deltas across aggregated price bins in the current bar.
 
-MinDelta:
+**MinDelta:**
 Minimum Delta value from the aggregated price bins. It shows the lowest (most negative) delta in the bar.
 
-MaxDelta:
+**MaxDelta:**
 Maximum Delta value from the aggregated price bins. It indicates the highest (most positive) delta in the bar.
 
-CumDelta:
+**CumDelta:**
 Cumulative Delta. This value sums the delta values over time, showing how net delta has evolved across bars.
 
-TotalVol:
+**TotalVol:**
 Total Volume. This is the combined volume (bid + ask) across all the aggregated bins for the current bar.
 
-POC:
+**POC:**
 Point of Control. The price level where the highest volume occurred in the bar.
 
-VAHigh:
+**VAHigh:**
 Value Area High. The upper boundary of the value area (typically set to include 70% of total volume), representing the highest price within that area.
 
-VALow:
+**VALow:**
 Value Area Low. The lower boundary of the value area, representing the lowest price where the majority of volume has occurred.
 
-Ratio:
+**Ratio:**
 A ratio calculated from volume data (for example, comparing volumes in adjacent bins) to help gauge potential market imbalances.
 
-POCPos:
+**POCPos:**
 POC Position. Indicates the relative position of the Point of Control within the bar’s price range (e.g., lower third, middle, or upper third).
 
-DeltaPerVolume:
+**DeltaPerVolume:**
 Delta per Volume. This is the ratio of the bar’s delta to its total volume, providing a normalized measure of net buying or selling pressure.
 
 VolSeq:
 Volume Sequence Signal. This signal detects a sequential increase or decrease in volume across the aggregated price bins.
 
-StackImb:
+**StackImb:**
 Stacked Imbalance Signal. Measures consecutive imbalances in bid versus ask volume, indicating potential strength in one direction.
 
-RevPOC:
+**RevPOC:**
 Reversal POC Signal. Generated when the Point of Control reverses its position relative to previous bars, which may indicate a market turnaround.
 
-Sweep:
+**Sweep:**
 Sweep Signal. Triggered by a sequence of bins with very low volume, which may indicate a sweep of price levels.
 
-DeltaSeq:
+**DeltaSeq:**
 Delta Sequence Signal. Analyzes the trend in delta values over recent bars to detect consistent directional movement.
 
-Divergence:
+**Divergence:**
 Divergence Signal. Identifies situations where the delta diverges from the price action (for example, when a lower price bar shows a positive delta), suggesting a possible reversal.
 
-DeltaFlip:
+**DeltaFlip:**
 Delta Flip Signal. Detects a sudden reversal in delta values, which can be a precursor to a change in market direction.
 
-DeltaTrap:
+**DeltaTrap:**
 Delta Trap Signal. Looks for trap patterns in the delta sequence that may indicate false breakouts or traps.
 
-Absorption:
+**Absorption:**
 Absorption Signal. Indicates when a large delta move is being absorbed by counteracting volume, suggesting that the move might not be sustainable.
 
-Exhaustion:
+**Exhaustion:**
 Exhaustion Signal. Highlights when one side (bid or ask) shows very low volume at the extremes of the bar, potentially indicating market exhaustion.
 
-VAGap:
+**VAGap:**
 Value Area Gap Signal. Detects gaps between the current bar’s value area and that of previous bars, which can signal a shift in market sentiment.
 
-LargeRatio:
+**LargeRatio:**
 Large Ratio Signal. Activated when a calculated volume ratio exceeds a set threshold, flagging potential market imbalances.
 
 **From your strategy**
