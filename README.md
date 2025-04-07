@@ -1,15 +1,15 @@
 # FootprintOrderFlow
 NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC and Value Area, plus signals. Additional plots are designed for integration with strategies.
 
-**Important**
+## Important
 1. This indicator requires an OrderFlow+ subscription.
 2. You do NOT need to use "Tick Replay" to use this indicator.
 3. This indicator only works with base bars that allow for Volumetric secondary dataseries. (e.g. Time, Range, Tick)
 
-**Credit**
+## Credit
 The Bid/Ask aggregation logic was copied from the great work by iotecdotdev at https://github.com/iotecdotdev/iotecOFPlus. Check out his Footprint indicator. It's great!
 
-**About**
+## About
 I created this indicator to work as a standalone indicator, but more importantly, to be integrated into your strategies. The indicator has three main components: the footprint, the summary table, and the signal grid. I have also included a legend so that you can quickly translate the signal grid. Each of these can be turned off individually, and all of them can be turned off to improve your strategy's performance.
 
 **Complete Footprint Indicator**
@@ -19,8 +19,7 @@ I created this indicator to work as a standalone indicator, but more importantly
 ![image](https://github.com/user-attachments/assets/97ff74de-52d7-435f-8de5-fa522fa65f13)
 
 
-**Plots**
-
+## Plots
 I have added plots for the following Order Flow values and signals. 
 
 **AggDelta:**
@@ -93,8 +92,7 @@ Value Area Gap Signal. Detects gaps between the current bar’s value area and t
 Large Ratio Signal. Activated when a calculated volume ratio exceeds a set threshold, flagging potential market imbalances.
 
 
-**From your strategy**
-
+## From your strategy
 Reference the object as usual.
 ```
 private FootprintOrderFlowIndicator footprint1;
