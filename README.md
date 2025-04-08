@@ -179,3 +179,10 @@ Print("Time " + Time[1] +
           " | VAGap=" + footprint1.Values[21][1] +
           " | LargeRatio=" + footprint1.Values[22][1]);
 ```
+## Summary Table Hiding Bars
+If the summary table is hiding the price bars. Adjust the lower margin of your price scale. Right-click the Y-axis (price) -> Properties -> Margin Lower.
+![image](https://github.com/user-attachments/assets/176e7012-60dc-4e0b-a1c1-9c9aa389337b)
+
+Adjusting this value will prevent this:
+![image](https://github.com/user-attachments/assets/b9bde5d2-25a5-47bb-9b5b-001153a4dde0)
+
