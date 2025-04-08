@@ -1,8 +1,9 @@
 # FootprintOrderFlow
-NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC and Value Area, plus signals. Additional plots are designed for integration with strategies.
+NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC, and Value Area, plus signals. Additional plots are designed for integration with strategies.
 
 ## Updates
 1. The Delta Summary Table can hide the price bars. Scroll all the way down to see the instructions on how to fix this.
+2. Added Predator Signals. Scroll down to the Predator section below. Happy hunting, predators!
 
 ## Important
 1. This indicator requires an OrderFlow+ subscription.
@@ -26,7 +27,7 @@ I created this indicator to work as a standalone indicator, but more importantly
 I have added plots for the following Order Flow values and signals. 
 
 **AggDelta:**
-Aggregated Delta. This is the net delta (ask minus bid volume) calculated by summing the deltas across aggregated price bins in the current bar.
+Aggregated Delta. The net delta (ask minus bid volume) is calculated by summing the deltas across aggregated price bins in the current bar.
 
 **MinDelta:**
 Minimum Delta value from the aggregated price bins. It shows the lowest (most negative) delta in the bar.
@@ -190,4 +191,12 @@ If the summary table is hiding the price bars. Adjust the lower margin of your p
 Adjusting the "Margin Lower" value will prevent this:
 
 ![image](https://github.com/user-attachments/assets/b9bde5d2-25a5-47bb-9b5b-001153a4dde0)
+
+## Predator Signals
+To accommodate drawing object capturing tools like Predator, I have added individual signals for each of the primary "trade signal" plots. Happy hunting, Predators!
+
+![image](https://github.com/user-attachments/assets/2b1bd8b2-2bb8-4912-8524-608c855507aa)
+![image](https://github.com/user-attachments/assets/855d2e5e-e795-47b6-b3a0-11c79ccfbfef)
+![image](https://github.com/user-attachments/assets/3811c7c5-398f-4d9f-a751-5a19f4c94e4d)
+
 
