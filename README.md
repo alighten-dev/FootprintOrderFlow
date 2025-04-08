@@ -110,7 +110,7 @@ Instantiate the object in your DataLoaded.
 ```
 else if (State == State.DataLoaded)
 			{	
-				footprint1 = FootprintOrderFlowIndicator(
+				footprint1 = FootprintOrderFlow(
 				    Close,              // the data series, e.g., Close
 				    15,                 // AggregationInterval
 				    70,                 // ValueAreaPer
