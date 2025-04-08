@@ -1,6 +1,9 @@
 # FootprintOrderFlow
 NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC and Value Area, plus signals. Additional plots are designed for integration with strategies.
 
+## Updates
+1. The Delta Summary Table can hide the price bars. Scroll all the way down to see the instructions on how to fix this.
+
 ## Important
 1. This indicator requires an OrderFlow+ subscription.
 2. You do NOT need to use "Tick Replay" to use this indicator.
