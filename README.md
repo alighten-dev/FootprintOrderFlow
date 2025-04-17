@@ -113,32 +113,32 @@ else if (State == State.Configure)
 Instantiate the object in your DataLoaded.
 ```
 else if (State == State.DataLoaded)
-			{	
-				footprint1 = FootprintOrderFlow(
-				    Close,
-				    15, 70, 4, 2, 2, 4, 3, 4.0, 30, 100, 300, 2000, 8, 8,
-				    false, false, true, 40,
-				    System.Windows.Media.Brushes.DarkGreen,
-				    System.Windows.Media.Brushes.Green,
-				    System.Windows.Media.Brushes.Lime,
-				    System.Windows.Media.Brushes.DarkRed,
-				    System.Windows.Media.Brushes.Red,
-				    System.Windows.Media.Brushes.Crimson,
-				    System.Windows.Media.Brushes.Cyan,
-				    System.Windows.Media.Brushes.Gray,
-				    System.Windows.Media.Brushes.Blue,
-				    System.Windows.Media.Brushes.Orange,
-				    System.Windows.Media.Brushes.Purple,
-				    System.Windows.Media.Brushes.Yellow,
-				    System.Windows.Media.Brushes.Magenta,
-				    System.Windows.Media.Brushes.Cyan,
-				    System.Windows.Media.Brushes.LightGreen,
-				    System.Windows.Media.Brushes.Red,
-				    System.Windows.Media.Brushes.Teal,
-				    System.Windows.Media.Brushes.Pink,
-				    false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3
-				);
-			}
+{	
+	footprint1 = FootprintOrderFlow(
+	    Close,
+	    15, 70, 4, 2, 2, 4, 3, 4.0, 30, 100, 300, 2000, 8, 8,
+	    false, false, true, 40,
+	    System.Windows.Media.Brushes.DarkGreen,
+	    System.Windows.Media.Brushes.Green,
+	    System.Windows.Media.Brushes.Lime,
+	    System.Windows.Media.Brushes.DarkRed,
+	    System.Windows.Media.Brushes.Red,
+	    System.Windows.Media.Brushes.Crimson,
+	    System.Windows.Media.Brushes.Cyan,
+	    System.Windows.Media.Brushes.Gray,
+	    System.Windows.Media.Brushes.Blue,
+	    System.Windows.Media.Brushes.Orange,
+	    System.Windows.Media.Brushes.Purple,
+	    System.Windows.Media.Brushes.Yellow,
+	    System.Windows.Media.Brushes.Magenta,
+	    System.Windows.Media.Brushes.Cyan,
+	    System.Windows.Media.Brushes.LightGreen,
+	    System.Windows.Media.Brushes.Red,
+	    System.Windows.Media.Brushes.Teal,
+	    System.Windows.Media.Brushes.Pink,
+	    false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3
+	);
+}
 ```
 
 To access the plots, reference the appropriate plot by number.
