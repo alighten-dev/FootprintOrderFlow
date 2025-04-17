@@ -115,43 +115,28 @@ Instantiate the object in your DataLoaded.
 else if (State == State.DataLoaded)
 			{	
 				footprint1 = FootprintOrderFlow(
-				    Close,              // the data series, e.g., Close
-				    15,                 // AggregationInterval
-				    70,                 // ValueAreaPer
-				    4,                  // VolumeSeqLookback
-				    2,                  // StackedImbalanceLookback
-				    2,                  // DeltaSequenceLookback
-				    4,                  // SweepLookback
-				    3,                  // DivergenceLookback
-				    4.0,                // ImbFact
-				    30,                 // LargeRatioThreshold
-				    100,                // DeltaThreshold1
-				    300,                // DeltaThreshold2
-				    2000,               // VolumeThreshold
-				    8,                  // NearZeroaThreshold
-				    8,                  // ExhaustionThreshold
-				    false,              // EnableFootprint (false to hide UI)
-				    false,              // EnableSummaryGrid
-				    false,              // EnableSignalGrid
-				    40,                 // SignalGridOffset
-				    System.Windows.Media.Brushes.DarkGreen,  // DeltaLowPositiveColor
-				    System.Windows.Media.Brushes.Green,        // DeltaMediumPositiveColor
-				    System.Windows.Media.Brushes.Lime,         // DeltaHighPositiveColor
-				    System.Windows.Media.Brushes.DarkRed,      // DeltaLowNegativeColor
-				    System.Windows.Media.Brushes.Red,          // DeltaMediumNegativeColor
-				    System.Windows.Media.Brushes.Crimson,      // DeltaHighNegativeColor
-				    System.Windows.Media.Brushes.Cyan,         // HighVolumeColor
-				    System.Windows.Media.Brushes.Gray,         // ZeroDeltaColor
-				    System.Windows.Media.Brushes.Blue,         // VolSeqColor
-				    System.Windows.Media.Brushes.Orange,       // StackedImbColor
-				    System.Windows.Media.Brushes.Purple,       // RevPOCColor
-				    System.Windows.Media.Brushes.Yellow,       // SweepColor
-				    System.Windows.Media.Brushes.Magenta,      // DeltaSeqColor
-				    System.Windows.Media.Brushes.Cyan,         // DivergenceColor
-				    System.Windows.Media.Brushes.LightGreen,   // AbsorptionColor
-				    System.Windows.Media.Brushes.Red,          // ExhaustionColor
-				    System.Windows.Media.Brushes.Teal,         // VAGapColor
-				    System.Windows.Media.Brushes.Pink          // LargeRatioColor
+				    Close,
+				    15, 70, 4, 2, 2, 4, 3, 4.0, 30, 100, 300, 2000, 8, 8,
+				    false, false, true, 40,
+				    System.Windows.Media.Brushes.DarkGreen,
+				    System.Windows.Media.Brushes.Green,
+				    System.Windows.Media.Brushes.Lime,
+				    System.Windows.Media.Brushes.DarkRed,
+				    System.Windows.Media.Brushes.Red,
+				    System.Windows.Media.Brushes.Crimson,
+				    System.Windows.Media.Brushes.Cyan,
+				    System.Windows.Media.Brushes.Gray,
+				    System.Windows.Media.Brushes.Blue,
+				    System.Windows.Media.Brushes.Orange,
+				    System.Windows.Media.Brushes.Purple,
+				    System.Windows.Media.Brushes.Yellow,
+				    System.Windows.Media.Brushes.Magenta,
+				    System.Windows.Media.Brushes.Cyan,
+				    System.Windows.Media.Brushes.LightGreen,
+				    System.Windows.Media.Brushes.Red,
+				    System.Windows.Media.Brushes.Teal,
+				    System.Windows.Media.Brushes.Pink,
+				    false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3
 				);
 			}
 ```
