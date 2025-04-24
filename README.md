@@ -4,6 +4,7 @@ NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume
 ## Updates
 1. The Delta Summary Table can hide the price bars. Scroll all the way down to see the instructions on how to fix this.
 2. Added Predator Signals. Scroll down to the Predator section below. Happy hunting, predators!
+3. Added support for manually setting the Font size of the Footprint and the Summary Table
 
 ## Important
 1. This indicator requires an OrderFlow+ subscription.
@@ -115,9 +116,9 @@ Instantiate the object in your DataLoaded.
 else if (State == State.DataLoaded)
 {	
 	footprint1 = FootprintOrderFlow(
-	    Close,
-	    15, 70, 4, 2, 2, 4, 3, 4.0, 30, 100, 300, 2000, 8, 8,
-	    false, false, true, 40,
+	    Closes[0],
+	    10, 70, 4, 2, 2, 4, 3, 4.0, 30, .69, 100, 300, 2000, 8, 8,
+	    16, false, false, true, 40,
 	    System.Windows.Media.Brushes.DarkGreen,
 	    System.Windows.Media.Brushes.Green,
 	    System.Windows.Media.Brushes.Lime,
