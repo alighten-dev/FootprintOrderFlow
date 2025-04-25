@@ -1271,7 +1271,12 @@ namespace NinjaTrader.NinjaScript.Indicators
 			        for (int barIndex = firstBar; barIndex <= lastBar; barIndex++)
 			        {
 			            // Ensure we have aggregated data for this bar
-			            if (!GetTotalVolumeForPrice.ContainsKey(barIndex))
+			            if (!GetTotalVolumeForPrice.ContainsKey(barIndex)
+			             || !GetBidVolumeForPrice.  ContainsKey(barIndex)
+			             || !GetAskVolumeForPrice.  ContainsKey(barIndex)
+			             || !GetPOCForBar.          ContainsKey(barIndex)
+			             || !GetVAHForBar.          ContainsKey(barIndex)
+			             || !GetVALForBar.          ContainsKey(barIndex))
 			                continue;
 			
 			            // Retrieve the aggregated dictionaries for the current bar
@@ -1386,6 +1391,17 @@ namespace NinjaTrader.NinjaScript.Indicators
 			        {
 						// Get the X coordinate of the bar.
 			            float xBar = chartControl.GetXByBarIndex(ChartBars, barIndex);
+						
+						if (!GetVolSeqForBar.     ContainsKey(barIndex)
+		                 || !GetStackedImbForBar. ContainsKey(barIndex)
+		                 || !GetReversalPOCForBar.ContainsKey(barIndex)
+		                 || !GetSweepForBar.      ContainsKey(barIndex)
+		                 || !GetDeltaSeqForBar.   ContainsKey(barIndex)
+		                 || !GetAbsorptionForBar. ContainsKey(barIndex)
+		                 || !GetExhaustionForBar. ContainsKey(barIndex)
+		                 || !GetVAGapForBar.      ContainsKey(barIndex)
+		                 || !GetLargeRatioForBar. ContainsKey(barIndex))
+		                    continue;
 						
 						// --- Draw signal grid for each visible bar (if signal data is available)
 						// Build an array of the 10 signal values for this bar:
