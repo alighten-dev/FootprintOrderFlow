@@ -5,6 +5,7 @@ NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume
 1. The Delta Summary Table can hide the price bars. Scroll all the way down to see the instructions on how to fix this.
 2. Added Predator Signals. Scroll down to the Predator section below. Happy hunting, predators!
 3. Added support for manually setting the Font size of the Footprint and the Summary Table
+4. Important stability update: Added key checks to the OnRender to prevent missing key errors.
 
 ## Important
 1. This indicator requires an OrderFlow+ subscription.
