@@ -40,6 +40,10 @@ namespace NinjaTrader.NinjaScript.Indicators
 		[Display(Name = "Value Area %", Order = 2, GroupName = "Aggregation Settings")]
 		public double ValueAreaPer { get; set; } = 70;
 		
+		[NinjaScriptProperty]
+		[Display(Name = "Align Aggregation To Session Open", Order = 3, GroupName = "Aggregation Settings")]
+		public bool UseSessionOpenForAggregation { get; set; } = true;
+		
 		// ***** Signal Lookback Settings *****
 		[NinjaScriptProperty]
 		[Range(1, 10)]
@@ -63,6 +67,10 @@ namespace NinjaTrader.NinjaScript.Indicators
 		[NinjaScriptProperty]
 		[Display(Name = "Divergence Lookback", Order = 7, GroupName = "Signal Lookback Settings")]
 		public int DivergenceLookback { get; set; } = 3;
+		
+		[NinjaScriptProperty]
+		[Display(Name = "Stopping Volume Lookback", Order = 8, GroupName = "Signal Lookback Settings")]
+		public int StoppingVolumeLookback { get; set; } = 3;		
 		
 		// ***** Signal Thresholds *****
 		[NinjaScriptProperty]
@@ -122,14 +130,122 @@ namespace NinjaTrader.NinjaScript.Indicators
 		public bool EnableSignalGrid { get; set; } = true; // Adds the summary grid at the bottom of the chart to display Delta/MinDelta/MaxDelta/Volume
 		
 		[NinjaScriptProperty]
+		[Display(Name = "Enable Signal Legend", Order = 5, GroupName = "Display")]
+		public bool EnableSignalGridLegend { get; set; } = true; // Adds the summary grid at the bottom of the chart to display Delta/MinDelta/MaxDelta/Volume
+		
+		[NinjaScriptProperty]
 		[Range(0, int.MaxValue)]
-		[Display(Name = "Signal Grid Offset", Order = 5, GroupName = "Display")]
+		[Display(Name = "Signal Grid Offset", Order = 6, GroupName = "Display")]
 		public int SignalGridOffset { get; set; } = 40; // Signal display offset from bar
 		
 		// ***** Color Settings *****
 		[XmlIgnore]
 		[NinjaScriptProperty]
-		[Display(Name = "Delta Low Positive Color", Order = 12, GroupName = "Color Settings")]
+		[Display(Name = "Bar Up Color", Order = 7, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush BarUpColor { get; set; } = System.Windows.Media.Brushes.LimeGreen;
+		[Browsable(false)]
+		public string BarUpColorSerialize
+		{
+		    get { return Serialize.BrushToString(BarUpColor); }
+		    set { BarUpColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Bar Down Color", Order = 8, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush BarDownColor { get; set; } = System.Windows.Media.Brushes.Red;
+		[Browsable(false)]
+		public string BarDownColorSerialize
+		{
+		    get { return Serialize.BrushToString(BarDownColor); }
+		    set { BarDownColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Bar Up Outline Color", Order = 9, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush BarUpOutlineColor { get; set; } = System.Windows.Media.Brushes.White;
+		[Browsable(false)]
+		public string BarUpOutlineColorSerialize
+		{
+		    get { return Serialize.BrushToString(BarUpOutlineColor); }
+		    set { BarUpOutlineColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Bar Down Outline Color", Order = 10, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush BarDownOutlineColor { get; set; } = System.Windows.Media.Brushes.White;
+		[Browsable(false)]
+		public string BarDownOutlineColorSerialize
+		{
+		    get { return Serialize.BrushToString(BarDownOutlineColor); }
+		    set { BarDownOutlineColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Bar Up Value Area Color", Order = 11, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush BarUpVAColor { get; set; } = System.Windows.Media.Brushes.DarkGreen;
+		[Browsable(false)]
+		public string BarUpVAColorSerialize
+		{
+		    get { return Serialize.BrushToString(BarUpVAColor); }
+		    set { BarUpVAColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Bar Down Value Area Color", Order = 12, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush BarDownVAColor { get; set; } = System.Windows.Media.Brushes.Red;
+		[Browsable(false)]
+		public string BarDownVAColorSerialize
+		{
+		    get { return Serialize.BrushToString(BarDownVAColor); }
+		    set { BarDownVAColor = Serialize.StringToBrush(value); }
+		}
+		
+		[NinjaScriptProperty]
+		[Range(1, 100)]
+		[Display(Name = "Value Area Opacity (0 - 100)", Order = 13, GroupName = "Footprint Bar Color Settings")]
+		public int VAOpacity { get; set; } = 20; 
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]	
+		[Display(Name = "POC Color", Order = 20, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush POCColor { get; set; } = System.Windows.Media.Brushes.Gray;
+		[Browsable(false)]
+		public string POCColorSerialize
+		{
+		    get { return Serialize.BrushToString(POCColor); }
+		    set { POCColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]	
+		[Display(Name = "POC Outline Color", Order = 21, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush POCOutlineColor { get; set; } = System.Windows.Media.Brushes.Yellow;
+		[Browsable(false)]
+		public string POCOutlineColorSerialize
+		{
+		    get { return Serialize.BrushToString(POCOutlineColor); }
+		    set { POCOutlineColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]	
+		[Display(Name = "POC Text Color", Order = 22, GroupName = "Footprint Bar Color Settings")]
+		public System.Windows.Media.Brush POCTextColor { get; set; } = System.Windows.Media.Brushes.White;
+		[Browsable(false)]
+		public string POCTextColorSerialize
+		{
+		    get { return Serialize.BrushToString(POCTextColor); }
+		    set { POCTextColor = Serialize.StringToBrush(value); }
+		}
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Delta Low Positive Color", Order = 12, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush DeltaLowPositiveColor { get; set; } = System.Windows.Media.Brushes.DarkGreen;
 		[Browsable(false)]
 		public string DeltaLowPositiveColorSerialize
@@ -140,7 +256,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		[XmlIgnore]
 		[NinjaScriptProperty]
-		[Display(Name = "Delta Medium Positive Color", Order = 13, GroupName = "Color Settings")]
+		[Display(Name = "Delta Medium Positive Color", Order = 13, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush DeltaMediumPositiveColor { get; set; } = System.Windows.Media.Brushes.Green;
 		[Browsable(false)]
 		public string DeltaMediumPositiveColorSerialize
@@ -151,7 +267,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		[XmlIgnore]
 		[NinjaScriptProperty]
-		[Display(Name = "Delta High Positive Color", Order = 14, GroupName = "Color Settings")]
+		[Display(Name = "Delta High Positive Color", Order = 14, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush DeltaHighPositiveColor { get; set; } = System.Windows.Media.Brushes.Lime;
 		[Browsable(false)]
 		public string DeltaHighPositiveColorSerialize
@@ -162,7 +278,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		[XmlIgnore]
 		[NinjaScriptProperty]
-		[Display(Name = "Delta Low Negative Color", Order = 15, GroupName = "Color Settings")]
+		[Display(Name = "Delta Low Negative Color", Order = 15, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush DeltaLowNegativeColor { get; set; } = System.Windows.Media.Brushes.DarkRed;
 		[Browsable(false)]
 		public string DeltaLowNegativeColorSerialize
@@ -173,7 +289,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		[XmlIgnore]
 		[NinjaScriptProperty]
-		[Display(Name = "Delta Medium Negative Color", Order = 16, GroupName = "Color Settings")]
+		[Display(Name = "Delta Medium Negative Color", Order = 16, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush DeltaMediumNegativeColor { get; set; } = System.Windows.Media.Brushes.Red;
 		[Browsable(false)]
 		public string DeltaMediumNegativeColorSerialize
@@ -184,7 +300,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		[XmlIgnore]
 		[NinjaScriptProperty]
-		[Display(Name = "Delta High Negative Color", Order = 17, GroupName = "Color Settings")]
+		[Display(Name = "Delta High Negative Color", Order = 17, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush DeltaHighNegativeColor { get; set; } = System.Windows.Media.Brushes.Crimson;
 		[Browsable(false)]
 		public string DeltaHighNegativeColorSerialize
@@ -195,7 +311,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		[XmlIgnore]
 		[NinjaScriptProperty]
-		[Display(Name = "High Volume Color", Order = 18, GroupName = "Color Settings")]
+		[Display(Name = "High Volume Color", Order = 18, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush HighVolumeColor { get; set; } = System.Windows.Media.Brushes.Cyan;
 		[Browsable(false)]
 		public string HighVolumeColorSerialize
@@ -204,9 +320,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 		    set { HighVolumeColor = Serialize.StringToBrush(value); }
 		}
 		
-		[NinjaScriptProperty]
 		[XmlIgnore]
-		[Display(Name = "Zero Delta Color", Order = 19, GroupName = "Color Settings")]
+		[NinjaScriptProperty]		
+		[Display(Name = "Zero Delta Color", Order = 19, GroupName = "Summary Table Color Settings")]
 		public System.Windows.Media.Brush ZeroDeltaColor { get; set; } = System.Windows.Media.Brushes.Gray;
 		[Browsable(false)]
 		public string ZeroDeltaColorSerialize
@@ -214,7 +330,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		    get { return Serialize.BrushToString(ZeroDeltaColor); }
 		    set { ZeroDeltaColor = Serialize.StringToBrush(value); }
 		}
-		
+
 		// ***** Signal Colors *****
 		[XmlIgnore]
 		[NinjaScriptProperty]
@@ -326,6 +442,28 @@ namespace NinjaTrader.NinjaScript.Indicators
 		    set { LargeRatioColor = Serialize.StringToBrush(value); }
 		}	
 		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Delta Flip Color", Order = 30, GroupName = "Signal Colors")]
+		public System.Windows.Media.Brush DeltaFlipColor { get; set; } = System.Windows.Media.Brushes.DarkGreen;
+		[Browsable(false)]
+		public string DeltaFlipColorSerialize
+		{
+		    get { return Serialize.BrushToString(DeltaFlipColor); }
+		    set { DeltaFlipColor = Serialize.StringToBrush(value); }
+		}	
+		
+		[XmlIgnore]
+		[NinjaScriptProperty]
+		[Display(Name = "Stopping Volume Color", Order = 31, GroupName = "Signal Colors")]
+		public System.Windows.Media.Brush StoppingVolumeColor { get; set; } = System.Windows.Media.Brushes.Brown;
+		[Browsable(false)]
+		public string StoppingVolumeColorSerialize
+		{
+		    get { return Serialize.BrushToString(StoppingVolumeColor); }
+		    set { StoppingVolumeColor = Serialize.StringToBrush(value); }
+		}	
+		
 		// ***** Show/Hide Individual Signals for Predator *****
 		[NinjaScriptProperty]
 		[Display(Name = "Enable VolSeq Diamond Signal", Order = 100, GroupName = "Individual Signal Settings")]
@@ -376,20 +514,20 @@ namespace NinjaTrader.NinjaScript.Indicators
 		public int DivergenceDiamondOffset { get; set; } = 3;
 		
 		[NinjaScriptProperty]
-		[Display(Name = "Enable DeltaFlip Diamond Signal", Order = 112, GroupName = "Individual Signal Settings")]
+		[Display(Name = "Enable Delta Flip Diamond Signal", Order = 112, GroupName = "Individual Signal Settings")]
 		public bool EnableDeltaFlipSignal { get; set; } = false;
 		
 		[NinjaScriptProperty]
-		[Display(Name = "DeltaFlip Diamond Offset", Order = 113, GroupName = "Individual Signal Settings")]
+		[Display(Name = "Delta Flip Diamond Offset", Order = 113, GroupName = "Individual Signal Settings")]
 		public int DeltaFlipDiamondOffset { get; set; } = 3;
 		
 		[NinjaScriptProperty]
-		[Display(Name = "Enable DeltaTrap Diamond Signal", Order = 114, GroupName = "Individual Signal Settings")]
-		public bool EnableDeltaTrapSignal { get; set; } = false;
+		[Display(Name = "Enable Stopping Volume Diamond Signal", Order = 114, GroupName = "Individual Signal Settings")]
+		public bool EnableStoppingVolumeSignal { get; set; } = false;
 		
 		[NinjaScriptProperty]
-		[Display(Name = "DeltaTrap Diamond Offset", Order = 115, GroupName = "Individual Signal Settings")]
-		public int DeltaTrapDiamondOffset { get; set; } = 3;
+		[Display(Name = "Stopping Volume Diamond Offset", Order = 115, GroupName = "Individual Signal Settings")]
+		public int StoppingVolumeDiamondOffset { get; set; } = 3;
 		
 		[NinjaScriptProperty]
 		[Display(Name = "Enable Absorption Diamond Signal", Order = 116, GroupName = "Individual Signal Settings")]
@@ -430,6 +568,7 @@ namespace NinjaTrader.NinjaScript.Indicators
         private NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType barsType;
         private double tickSize;
 		private int lastPrintedBar = -1;
+		private double sessionOpenPrice;
 
         // Aggregated dictionaries persist across bars (keyed by bar index)
         private Dictionary<int, Dictionary<double, double>> GetAskVolumeForPrice = new Dictionary<int, Dictionary<double, double>>();
@@ -459,16 +598,27 @@ namespace NinjaTrader.NinjaScript.Indicators
 		private Dictionary<int, int> GetDeltaSeqForBar = new Dictionary<int, int>();
 		private Dictionary<int, int> GetDivergenceForBar = new Dictionary<int, int>();
 		private Dictionary<int, int> GetDeltaFlipForBar = new Dictionary<int, int>();
-		private Dictionary<int, int> GetDeltaTrapForBar = new Dictionary<int, int>();
+		private Dictionary<int, int> GetStoppingVolumeForBar = new Dictionary<int, int>();
 		private Dictionary<int, int> GetAbsorptionForBar = new Dictionary<int, int>();
 		private Dictionary<int, int> GetExhaustionForBar = new Dictionary<int, int>();
 		private Dictionary<int, int> GetVAGapForBar = new Dictionary<int, int>();
 		private Dictionary<int, int> GetLargeRatioForBar = new Dictionary<int, int>();
 		
+		// Dictionaries for calculated POC position
+		private Dictionary<int, int>   GetPocVAFromLow    = new Dictionary<int,int>();
+		private Dictionary<int, int>   GetPocVAFromHigh   = new Dictionary<int,int>();
+		private Dictionary<int, int>   GetPocBarFromLow   = new Dictionary<int,int>();
+		private Dictionary<int, int>   GetPocBarFromHigh  = new Dictionary<int,int>();
+		private Dictionary<int, double> GetPocToBodyHigh  = new Dictionary<int,double>();
+		private Dictionary<int, double> GetPocToBodyLow   = new Dictionary<int,double>();
+				
         // Calculated values for the current bar 
         private double barDelta = 0;
 		private double minDelta = 0;
-		private double maxDelta = 0;        
+		private double maxDelta = 0;   
+		private double minBarDelta = 0;
+		private double maxBarDelta = 0;
+		private int   deltaBarIndex = -1;
         private double cumulativeDelta = 0;
         private double totalVolume = 0;
         private double pocPrice = 0;
@@ -487,11 +637,17 @@ namespace NinjaTrader.NinjaScript.Indicators
         private int deltaSeqSignal = 0;
 		private int divergenceSignal = 0;
 		private int deltaFlipSignal = 0;
-		private int deltaTrapSignal = 0;
+		private int stopVolSignal = 0;
 		private int absorptionSignal = 0;
 		private int exhaustionSignal = 0;
 		private int vaGapSignal = 0;
 		private int largeRatioSignal = 0;
+		
+		// Calculated POC details for the current bar
+		private int pocVA_FromLow = 0;
+		private int pocVA_FromHigh = 0;
+		private int pocBar_FromLow = 0;
+		private int pocBar_FromHigh = 0;
 
         #endregion
 
@@ -501,7 +657,7 @@ namespace NinjaTrader.NinjaScript.Indicators
             if (State == State.SetDefaults)
             {
                 Description = "Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC and Value Area, plus signals. Plots designed for integration with strategies. - By Alighten";
-                Name = "FootprintOrderFlow";
+                Name = "FootprintOrderFlow by Alighten";
                 Calculate = Calculate.OnEachTick;
                 IsOverlay									= true;
 				DisplayInDataBox							= true;
@@ -532,11 +688,17 @@ namespace NinjaTrader.NinjaScript.Indicators
                 AddPlot(Brushes.Transparent, "DeltaSeq");            
 				AddPlot(Brushes.Transparent, "Divergence");
 				AddPlot(Brushes.Transparent, "DeltaFlip");
-				AddPlot(Brushes.Transparent, "DeltaTrap");
+				AddPlot(Brushes.Transparent, "StoppingVolume");
 				AddPlot(Brushes.Transparent, "Absorption");
 				AddPlot(Brushes.Transparent, "Exhaustion");
 				AddPlot(Brushes.Transparent, "VAGap");
-				AddPlot(Brushes.Transparent, "LargeRatio");				
+				AddPlot(Brushes.Transparent, "LargeRatio");		
+				
+				// --- Add Plots for detailed POC tracking ---
+				AddPlot(Brushes.Transparent, "POC_VA_FromLow");     
+				AddPlot(Brushes.Transparent, "POC_VA_FromHigh");    
+				AddPlot(Brushes.Transparent, "POC_Bar_FromLow");    
+				AddPlot(Brushes.Transparent, "POC_Bar_FromHigh");   
             }
             else if (State == State.Configure)
             {	
@@ -556,6 +718,10 @@ namespace NinjaTrader.NinjaScript.Indicators
         {
 			try
 			{
+			
+			if (Bars.IsFirstBarOfSession)
+        		sessionOpenPrice = Open[0];
+			
             // Process only the primary series (BarsInProgress==0)
             if (Bars == null || barsType == null)
                 return;
@@ -568,6 +734,15 @@ namespace NinjaTrader.NinjaScript.Indicators
 			
 			if (barsType.Volumes.Count() <= CurrentBar)
     			return;
+			
+			if (CurrentBar != deltaBarIndex) 
+			{
+			    deltaBarIndex      = CurrentBar;
+			    double firstDelta  = barsType.Volumes[CurrentBar].BarDelta;
+			    minBarDelta = firstDelta;
+			    maxBarDelta = firstDelta;
+			}
+			
 
             // --- Initialize persistent dictionaries for this bar if not already done ---
             if (!GetAskVolumeForPrice.ContainsKey(CurrentBar))
@@ -602,517 +777,548 @@ namespace NinjaTrader.NinjaScript.Indicators
             double binInterval = AggregationInterval * tickSize;
 
             // --- Aggregate data over the price range ---
-            for (double p = lowPrice; p <= highPrice; p += binInterval)
-            {
-                double aggAsk = 0;
-                double aggBid = 0;
+			double origin      = UseSessionOpenForAggregation
+                       ? sessionOpenPrice
+                       : lowPrice;
 
-                // For each tick within this bin:
-                for (double currentPrice = p; currentPrice < p + binInterval && currentPrice <= highPrice; currentPrice += tickSize)
-                {
-                    aggAsk += barsType.Volumes[CurrentBar].GetAskVolumeForPrice(currentPrice);
-            		aggBid += barsType.Volumes[CurrentBar].GetBidVolumeForPrice(currentPrice);
-			   	}
-
-                // Store aggregated values (using the starting price of the bin)
-                GetAskVolumeForPrice[CurrentBar][p] = aggAsk;
-                GetBidVolumeForPrice[CurrentBar][p] = aggBid;
-                GetDeltaForPrice[CurrentBar][p] = aggAsk - aggBid;
-                GetTotalVolumeForPrice[CurrentBar][p] = aggAsk + aggBid;
-            }
-            // (Optionally, call a Cleanup method to remove keys that are not at exact multiples – see below.)
-//            CleanupExtraneousValues(GetAskVolumeForPrice[CurrentBar], lowPrice, binInterval);
-//            CleanupExtraneousValues(GetBidVolumeForPrice[CurrentBar], lowPrice, binInterval);
-//            CleanupExtraneousValues(GetDeltaForPrice[CurrentBar], lowPrice, binInterval);
-//            CleanupExtraneousValues(GetTotalVolumeForPrice[CurrentBar], lowPrice, binInterval);			
-
-            // --- Calculate POC from aggregated total volume ---
-            if (GetTotalVolumeForPrice[CurrentBar].Count > 0)
-            {
-                var pocPair = GetTotalVolumeForPrice[CurrentBar].Aggregate((a, b) => a.Value > b.Value ? a : b);
-                pocPrice = pocPair.Key;
-            }
-            else
-            {
-                pocPrice = 0;
-            }
-
-            // --- Retrieve built-in bar-level values from the volumetric series ---
-            barDelta = barsType.Volumes[CurrentBar].BarDelta;
-            cumulativeDelta = barsType.Volumes[CurrentBar].CumulativeDelta;
-            totalVolume = barsType.Volumes[CurrentBar].TotalVolume;
-
-            // --- Calculate minDelta and maxDelta from the aggregated delta values ---
-            if (GetDeltaForPrice[CurrentBar].Count > 0)
-            {
-                maxDelta = GetDeltaForPrice[CurrentBar].Max(kvp => kvp.Value);
-                minDelta = GetDeltaForPrice[CurrentBar].Min(kvp => kvp.Value);
-            }
-            else
-            {
-                maxDelta = 0;
-                minDelta = 0;
-            }
+			// clamp tiny floating error, then floor:
+			double rawIdx   = (lowPrice - origin) / binInterval;
+			int    nMin     = (int)Math.Floor(rawIdx + 1e-8);
 			
-			// --- Delta/Volume: Simple ratio
-			if (totalVolume > 0)
-				deltaPerVolume = barDelta / totalVolume;
-
-
-            // --- Calculate Value Area (VA) using aggregated total volume bins ---
-            double targetVA = totalVolume * (ValueAreaPer / 100.0);
-            var ascendingBins = GetTotalVolumeForPrice[CurrentBar].OrderBy(x => x.Key).ToList();
-            int pocIndex = ascendingBins.FindIndex(x => x.Key == pocPrice);
-            if (pocIndex < 0)
-                pocIndex = 0;
-            // Initialize VA at POC
-            vah = pocPrice;
-            val = pocPrice;
-            double cumVolume = GetTotalVolumeForPrice[CurrentBar][pocPrice];
-            int up = pocIndex + 1;
-            int down = pocIndex - 1;
-            while (cumVolume < targetVA && (up < ascendingBins.Count || down >= 0))
-            {
-                double volUp = (up < ascendingBins.Count) ? ascendingBins[up].Value : 0;
-                double volDown = (down >= 0) ? ascendingBins[down].Value : 0;
-                if (up < ascendingBins.Count && (down < 0 || volUp >= volDown))
-                {
-                    cumVolume += volUp;
-                    vah = ascendingBins[up].Key;
-                    up++;
-                }
-                else if (down >= 0)
-                {
-                    cumVolume += volDown;
-                    val = ascendingBins[down].Key;
-                    down--;
-                }
-                else
-                {
-                    break;
-                }
-            }            
-
-            // --- Calculate POC Position ---
-            double range = highPrice - lowPrice;
-            if (range > 0)
-            {
-                if (pocPrice > lowPrice + 2 * range / 3)
-                    pocPos = 1;
-                else if (pocPrice < lowPrice + range / 3)
-                    pocPos = -1;
-                else
-                    pocPos = 0;
-            }
-            else
-            {
-                pocPos = 0;
-            }
-
-            // --- Calculate additional signals (VolSeq, Stacked Imbalance, RevPOC, Sweep, Delta Sequence)
-
-            // Volume Sequencing: check if ask volumes increase over the first few bins.
-            if (ascendingBins.Count >= VolumeSeqLookback)
-            {
-                bool askSeq = true;
-                for (int i = 1; i < VolumeSeqLookback; i++)
-                {
-                    double pricePrev = ascendingBins[i - 1].Key;
-                    double priceCurr = ascendingBins[i].Key;
-                    double askPrev = GetAskVolumeForPrice[CurrentBar].ContainsKey(pricePrev) ? GetAskVolumeForPrice[CurrentBar][pricePrev] : 0;
-                    double askCurr = GetAskVolumeForPrice[CurrentBar].ContainsKey(priceCurr) ? GetAskVolumeForPrice[CurrentBar][priceCurr] : 0;
-                    if (!(askCurr > askPrev))
-                    {
-                        askSeq = false;
-                        break;
-                    }
-                }
-                bool bidSeq = true;
-                for (int i = ascendingBins.Count - VolumeSeqLookback + 1; i < ascendingBins.Count; i++)
-                {
-                    int idxBelow = i - 1;
-                    double priceBelow = ascendingBins[idxBelow].Key;
-                    double priceNow = ascendingBins[i].Key;
-                    double bidBelow = GetBidVolumeForPrice[CurrentBar].ContainsKey(priceBelow) ? GetBidVolumeForPrice[CurrentBar][priceBelow] : 0;
-                    double bidNow = GetBidVolumeForPrice[CurrentBar].ContainsKey(priceNow) ? GetBidVolumeForPrice[CurrentBar][priceNow] : 0;
-                    if (!(bidBelow > bidNow))
-                    {
-                        bidSeq = false;
-                        break;
-                    }
-                }
-                if (askSeq)
-                    volSeqSignal = 1;
-                else if (bidSeq)
-                    volSeqSignal = -1;
-                else
-                    volSeqSignal = 0;
-            }
-            else
-            {
-                volSeqSignal = 0;
-            }
-
-            // --- Stacked Imbalance: count consecutive bins where ask is much larger than bid or vice versa.
-			// For Ask Imbalance:
-			int maxConsecutiveAsk = 0;
-			int currentConsecutiveAsk = 0;
-			for (int i = 1; i < ascendingBins.Count; i++)
+			// this bin start will be <= lowPrice
+			double firstBin = origin + nMin * binInterval;
+			
+			// now cover every bin from that up to highPrice
+			for (double p = firstBin; p <= highPrice; p += binInterval)
 			{
-			    double priceCurr = ascendingBins[i].Key;
-			    double pricePrev = ascendingBins[i - 1].Key;
-			    double askCurr = GetAskVolumeForPrice[CurrentBar].ContainsKey(priceCurr) ? GetAskVolumeForPrice[CurrentBar][priceCurr] : 0;
-			    double bidPrev = GetBidVolumeForPrice[CurrentBar].ContainsKey(pricePrev) ? GetBidVolumeForPrice[CurrentBar][pricePrev] : 0;
-			    
-			    // Check diagonal ask imbalance condition:
-			    if (askCurr >= ImbFact * bidPrev)
-			        currentConsecutiveAsk++;
-			    else
-			        currentConsecutiveAsk = 0;
-			    
-			    if (currentConsecutiveAsk > maxConsecutiveAsk)
-			        maxConsecutiveAsk = currentConsecutiveAsk;
+			    double aggAsk = 0, aggBid = 0;
+			    for (double price = p; price < p + binInterval && price <= highPrice; price += tickSize)
+			    {
+			        aggAsk += barsType.Volumes[CurrentBar].GetAskVolumeForPrice(price);
+			        aggBid += barsType.Volumes[CurrentBar].GetBidVolumeForPrice(price);
+			    }
+			
+			    GetAskVolumeForPrice[CurrentBar][p]   = aggAsk;
+			    GetBidVolumeForPrice[CurrentBar][p]   = aggBid;
+			    GetDeltaForPrice[CurrentBar][p]       = aggAsk - aggBid;
+			    GetTotalVolumeForPrice[CurrentBar][p] = aggAsk + aggBid;
 			}
 			
-			// For Bid Imbalance:
-			int maxConsecutiveBid = 0;
-			int currentConsecutiveBid = 0;
-			for (int i = 0; i < ascendingBins.Count - 1; i++)
-			{
-			    double priceCurr = ascendingBins[i].Key;
-			    double priceNext = ascendingBins[i + 1].Key;
-			    double bidCurr = GetBidVolumeForPrice[CurrentBar].ContainsKey(priceCurr) ? GetBidVolumeForPrice[CurrentBar][priceCurr] : 0;
-			    double askNext = GetAskVolumeForPrice[CurrentBar].ContainsKey(priceNext) ? GetAskVolumeForPrice[CurrentBar][priceNext] : 0;
-			    
-			    // Check diagonal bid imbalance condition:
-			    if (bidCurr >= ImbFact * askNext)
-			        currentConsecutiveBid++;
-			    else
-			        currentConsecutiveBid = 0;
-			    
-			    if (currentConsecutiveBid > maxConsecutiveBid)
-			        maxConsecutiveBid = currentConsecutiveBid;
-			}
-			
-			// Set the stacked imbalance signal based on the maximum consecutive counts.
-			if (maxConsecutiveAsk >= StackedImbalanceLookback)
-			    stackedImbSignal = 1;
-			else if (maxConsecutiveBid >= StackedImbalanceLookback)
-			    stackedImbSignal = -1;
-			else
-			    stackedImbSignal = 0;
-
-
-            // Reversal POC: simple logic based on previous bar color and current POC position
-            if (CurrentBar >= 1)
-            {
-                bool prevBarGreen = Closes[0][1] >= Opens[0][1];
-                bool prevBarRed = Closes[0][1] < Opens[0][1];
-                bool currBarGreen = Closes[0][0] >= Opens[0][0];
-                bool currBarRed = Closes[0][0] < Opens[0][0];
-                if (prevBarRed && currBarGreen && Low[0] < Low[1] && pocPos == -1)
-                    reversalPOCSignal = 1;
-                else if (prevBarGreen && currBarRed && High[0] > High[1] && pocPos == 1)
-                    reversalPOCSignal = -1;
-                else
-                    reversalPOCSignal = 0;
-            }
-            else
-            {
-                reversalPOCSignal = 0;
-            }
-
-            // Sweep Signal: count consecutive bins with very low volume
-            int consAskLow = 0, consBidLow = 0;
-            foreach (var bin in ascendingBins)
-            {
-                double askVol = GetAskVolumeForPrice[CurrentBar].ContainsKey(bin.Key) ? GetAskVolumeForPrice[CurrentBar][bin.Key] : 0;
-                double bidVol = GetBidVolumeForPrice[CurrentBar].ContainsKey(bin.Key) ? GetBidVolumeForPrice[CurrentBar][bin.Key] : 0;
-                if (askVol <= NearZeroaThreshold)
-                    consAskLow++;
-                else
-                    consAskLow = 0;
-                if (bidVol <= NearZeroaThreshold)
-                    consBidLow++;
-                else
-                    consBidLow = 0;
-            }
-            if (consAskLow >= SweepLookback)
-                sweepSignal = -1;
-            else if (consBidLow >= SweepLookback)
-                sweepSignal = 1;
-            else
-                sweepSignal = 0;
-
-            // Delta Sequence Signal: compare built-in tick deltas over the last few bars
-            if (CurrentBar >= DeltaSequenceLookback)
-            {
-                bool isIncreasing = true;
-                bool isDecreasing = true;
-                for (int i = CurrentBar - DeltaSequenceLookback + 1; i <= CurrentBar; i++)
-                {
-                    double prevDelta = barsType.Volumes[i - 1].BarDelta;
-                    double currDelta = barsType.Volumes[i].BarDelta;
-                    if (currDelta <= prevDelta) isIncreasing = false;
-                    if (currDelta >= prevDelta) isDecreasing = false;
-                }
-                if (isIncreasing)
+//			if (GetTotalVolumeForPrice[CurrentBar].Count > 0)
+//			{
+	
+	            // --- Calculate POC from aggregated total volume ---
+	            if (GetTotalVolumeForPrice[CurrentBar].Count > 0)
+	            {
+	                var pocPair = GetTotalVolumeForPrice[CurrentBar].Aggregate((a, b) => a.Value > b.Value ? a : b);
+	                pocPrice = pocPair.Key;
+	            }
+	            else
+	            {
+	                pocPrice = 0;
+	            }
+	
+	            // --- Retrieve built-in bar-level values from the volumetric series ---
+	            barDelta 		= barsType.Volumes[CurrentBar].BarDelta;
+	            cumulativeDelta = barsType.Volumes[CurrentBar].CumulativeDelta;
+	            totalVolume 	= barsType.Volumes[CurrentBar].TotalVolume;
+				minBarDelta 	= Math.Min(minBarDelta, barDelta);
+				maxBarDelta 	= Math.Max(maxBarDelta, barDelta);
+	
+	            // --- Calculate minDelta and maxDelta from the entire bar ---
+				if (State == State.Realtime && minBarDelta != maxBarDelta)
 				{
-                    deltaSeqSignal = 1;
-					deltaSignal = "I";
+					minDelta = minBarDelta;
+					maxDelta = maxBarDelta;
+				} 
+				else
+				{
+					// --- Optionally calculate minDelta and maxDelta from the aggreated levels ---
+		            if (GetDeltaForPrice[CurrentBar].Count > 0)
+		            {
+		                maxDelta 	= GetDeltaForPrice[CurrentBar].Max(kvp => kvp.Value);
+						maxDelta    = barDelta > maxDelta ? barDelta : maxDelta;
+		                minDelta 	= GetDeltaForPrice[CurrentBar].Min(kvp => kvp.Value);
+						minDelta    = barDelta < minDelta ? barDelta : minDelta;
+		            }
+		            else
+		            {
+		                maxDelta = 0;
+		                minDelta = 0;
+		            }
 				}
-                else if (isDecreasing)
+				
+				
+				// --- Delta/Volume: Simple ratio
+				if (totalVolume > 0)
+					deltaPerVolume = barDelta / totalVolume;
+	
+	
+	            // --- Calculate Value Area (VA) using aggregated total volume bins ---
+	            double targetVA = totalVolume * (ValueAreaPer / 100.0);
+	            var ascendingBins = GetTotalVolumeForPrice[CurrentBar].OrderBy(x => x.Key).ToList();
+	            int pocIndex = ascendingBins.FindIndex(x => x.Key == pocPrice);
+	            if (pocIndex < 0)
+	                pocIndex = 0;
+	            // Initialize VA at POC
+	            vah = pocPrice;
+	            val = pocPrice;
+	            double cumVolume 	= GetTotalVolumeForPrice[CurrentBar][pocPrice];
+	            int up 				= pocIndex + 1;
+	            int down 			= pocIndex - 1;
+	            while (cumVolume < targetVA && (up < ascendingBins.Count || down >= 0))
+	            {
+	                double volUp 	= (up < ascendingBins.Count) ? ascendingBins[up].Value : 0;
+	                double volDown 	= (down >= 0) ? ascendingBins[down].Value : 0;
+	                if (up < ascendingBins.Count && (down < 0 || volUp >= volDown))
+	                {
+	                    cumVolume += volUp;
+	                    vah = ascendingBins[up].Key;
+	                    up++;
+	                }
+	                else if (down >= 0)
+	                {
+	                    cumVolume += volDown;
+	                    val = ascendingBins[down].Key;
+	                    down--;
+	                }
+	                else
+	                {
+	                    break;
+	                }
+	            }            
+	
+	            // --- Calculate POC Position ---
+	            double range = highPrice - lowPrice;
+	            if (range > 0)
+	            {
+	                if (pocPrice > lowPrice + 2 * range / 3)
+	                    pocPos = 1;
+	                else if (pocPrice < lowPrice + range / 3)
+	                    pocPos = -1;
+	                else
+	                    pocPos = 0;
+	            }
+	            else
+	            {
+	                pocPos = 0;
+	            }
+				
+				// --- Calculate detailed POC position in relation to VA, Low/High, Open/Close
+				int totalBins = ascendingBins.Count;
+	
+				// find the bin‐index of POC, VAL, VAH
+				int pocIdx = ascendingBins.FindIndex(x => x.Key == pocPrice);
+				int valIdx = ascendingBins.FindIndex(x => x.Key == val);
+				int vahIdx = ascendingBins.FindIndex(x => x.Key == vah);
+	
+				// POC’s zero‐based offset *from the bottom* of the VA
+				pocVA_FromLow  = pocIdx - valIdx;       
+				// POC’s zero‐based offset *from the top* of the VA
+				pocVA_FromHigh = vahIdx - pocIdx;       
+				
+				// POC’s zero‐based offset *from the bottom* of the full bar
+				pocBar_FromLow  = pocIdx;               
+				// POC’s zero‐based offset *from the top* of the full bar
+				pocBar_FromHigh = (totalBins - 1) - pocIdx;
+										
+				
+	            // --- Calculate additional signals (VolSeq, Stacked Imbalance, RevPOC, Sweep, Delta Sequence)
+	
+	            // Volume Sequencing: check if ask volumes increase over the first few bins.
+	            if (ascendingBins.Count >= VolumeSeqLookback)
+	            {
+	                bool askSeq = true;
+	                for (int i = 1; i < VolumeSeqLookback; i++)
+	                {
+	                    double pricePrev 	= ascendingBins[i - 1].Key;
+	                    double priceCurr 	= ascendingBins[i].Key;
+	                    double askPrev 		= GetAskVolumeForPrice[CurrentBar].ContainsKey(pricePrev) ? GetAskVolumeForPrice[CurrentBar][pricePrev] : 0;
+	                    double askCurr 		= GetAskVolumeForPrice[CurrentBar].ContainsKey(priceCurr) ? GetAskVolumeForPrice[CurrentBar][priceCurr] : 0;
+	                    if (!(askCurr > askPrev))
+	                    {
+	                        askSeq = false;
+	                        break;
+	                    }
+	                }
+	                bool bidSeq = true;
+	                for (int i = ascendingBins.Count - VolumeSeqLookback + 1; i < ascendingBins.Count; i++)
+	                {
+	                    int idxBelow = i - 1;
+	                    double priceBelow 	= ascendingBins[idxBelow].Key;
+	                    double priceNow 	= ascendingBins[i].Key;
+	                    double bidBelow 	= GetBidVolumeForPrice[CurrentBar].ContainsKey(priceBelow) ? GetBidVolumeForPrice[CurrentBar][priceBelow] : 0;
+	                    double bidNow 		= GetBidVolumeForPrice[CurrentBar].ContainsKey(priceNow) ? GetBidVolumeForPrice[CurrentBar][priceNow] : 0;
+	                    if (!(bidBelow > bidNow))
+	                    {
+	                        bidSeq = false;
+	                        break;
+	                    }
+	                }
+	                if (askSeq)
+	                    volSeqSignal = 1;
+	                else if (bidSeq)
+	                    volSeqSignal = -1;
+	                else
+	                    volSeqSignal = 0;
+	            }
+	            else
+	            {
+	                volSeqSignal = 0;
+	            }
+	
+	            // --- Stacked Imbalance: count consecutive bins where ask is much larger than bid or vice versa.
+				// For Ask Imbalance:
+				int maxConsecutiveAsk = 0;
+				int currentConsecutiveAsk = 0;
+				for (int i = 1; i < ascendingBins.Count; i++)
 				{
-                    deltaSeqSignal = -1;
-					deltaSignal = "D";
+				    double priceCurr 	= ascendingBins[i].Key;
+				    double pricePrev 	= ascendingBins[i - 1].Key;
+				    double askCurr 		= GetAskVolumeForPrice[CurrentBar].ContainsKey(priceCurr) ? GetAskVolumeForPrice[CurrentBar][priceCurr] : 0;
+				    double bidPrev 		= GetBidVolumeForPrice[CurrentBar].ContainsKey(pricePrev) ? GetBidVolumeForPrice[CurrentBar][pricePrev] : 0;
+				    
+				    // Check diagonal ask imbalance condition:
+				    if (askCurr >= ImbFact * bidPrev)
+				        currentConsecutiveAsk++;
+				    else
+				        currentConsecutiveAsk = 0;
+				    
+				    if (currentConsecutiveAsk > maxConsecutiveAsk)
+				        maxConsecutiveAsk = currentConsecutiveAsk;
 				}
-                else
+				
+				// For Bid Imbalance:
+				int maxConsecutiveBid = 0;
+				int currentConsecutiveBid = 0;
+				for (int i = 0; i < ascendingBins.Count - 1; i++)
 				{
-                    deltaSeqSignal = 0;
+				    double priceCurr 	= ascendingBins[i].Key;
+				    double priceNext 	= ascendingBins[i + 1].Key;
+				    double bidCurr 		= GetBidVolumeForPrice[CurrentBar].ContainsKey(priceCurr) ? GetBidVolumeForPrice[CurrentBar][priceCurr] : 0;
+				    double askNext 		= GetAskVolumeForPrice[CurrentBar].ContainsKey(priceNext) ? GetAskVolumeForPrice[CurrentBar][priceNext] : 0;
+				    
+				    // Check diagonal bid imbalance condition:
+				    if (bidCurr >= ImbFact * askNext)
+				        currentConsecutiveBid++;
+				    else
+				        currentConsecutiveBid = 0;
+				    
+				    if (currentConsecutiveBid > maxConsecutiveBid)
+				        maxConsecutiveBid = currentConsecutiveBid;
+				}
+				
+				// Set the stacked imbalance signal based on the maximum consecutive counts.
+				if (maxConsecutiveAsk >= StackedImbalanceLookback)
+				    stackedImbSignal = 1;
+				else if (maxConsecutiveBid >= StackedImbalanceLookback)
+				    stackedImbSignal = -1;
+				else
+				    stackedImbSignal = 0;
+	
+	
+	            // Reversal POC: simple logic based on previous bar color and current POC position
+	            if (CurrentBar >= 1)
+	            {
+	                bool prevBarGreen 	= Closes[0][1] >= Opens[0][1];
+	                bool prevBarRed 	= Closes[0][1] < Opens[0][1];
+	                bool currBarGreen 	= Closes[0][0] >= Opens[0][0];
+	                bool currBarRed 	= Closes[0][0] < Opens[0][0];
+	                if (prevBarRed && currBarGreen && Low[0] < Low[1] && pocPos == -1)
+	                    reversalPOCSignal = 1;
+	                else if (prevBarGreen && currBarRed && High[0] > High[1] && pocPos == 1)
+	                    reversalPOCSignal = -1;
+	                else
+	                    reversalPOCSignal = 0;
+	            }
+	            else
+	            {
+	                reversalPOCSignal = 0;
+	            }
+	
+	            // Sweep Signal: count consecutive bins with very low volume
+	            int consAskLow = 0, consBidLow = 0;
+	            foreach (var bin in ascendingBins)
+	            {
+	                double askVol = GetAskVolumeForPrice[CurrentBar].ContainsKey(bin.Key) ? GetAskVolumeForPrice[CurrentBar][bin.Key] : 0;
+	                double bidVol = GetBidVolumeForPrice[CurrentBar].ContainsKey(bin.Key) ? GetBidVolumeForPrice[CurrentBar][bin.Key] : 0;
+	                if (askVol <= NearZeroaThreshold)
+	                    consAskLow++;
+	                else
+	                    consAskLow = 0;
+	                if (bidVol <= NearZeroaThreshold)
+	                    consBidLow++;
+	                else
+	                    consBidLow = 0;
+	            }
+	            if (consAskLow >= SweepLookback)
+	                sweepSignal = -1;
+	            else if (consBidLow >= SweepLookback)
+	                sweepSignal = 1;
+	            else
+	                sweepSignal = 0;
+	
+	            // Delta Sequence Signal: compare built-in tick deltas over the last few bars
+	            if (CurrentBar >= DeltaSequenceLookback)
+	            {
+	                bool isIncreasing = true;
+	                bool isDecreasing = true;
+	                for (int i = CurrentBar - DeltaSequenceLookback + 1; i <= CurrentBar; i++)
+	                {
+	                    double prevDelta = barsType.Volumes[i - 1].BarDelta;
+	                    double currDelta = barsType.Volumes[i].BarDelta;
+	                    if (currDelta <= prevDelta) isIncreasing = false;
+	                    if (currDelta >= prevDelta) isDecreasing = false;
+	                }
+	                if (isIncreasing)
+					{
+	                    deltaSeqSignal = 1;
+						deltaSignal = "I";
+					}
+	                else if (isDecreasing)
+					{
+	                    deltaSeqSignal = -1;
+						deltaSignal = "D";
+					}
+	                else
+					{
+	                    deltaSeqSignal = 0;
+						deltaSignal = "";
+					}
+	            }
+	            else
+	            {
+	                deltaSeqSignal = 0;
 					deltaSignal = "";
+	            }
+				
+				// Bar Ratio: Calculate a simple bar ratio between second and base price aggregates ---
+	            if (Close[0] > Open[0])
+	            {
+	                double lowBidVol = (GetBidVolumeForPrice[CurrentBar].ContainsKey(lowPrice + binInterval)) ? GetBidVolumeForPrice[CurrentBar][lowPrice + binInterval] : 0;
+	                double lowBidBase = (GetBidVolumeForPrice[CurrentBar].ContainsKey(lowPrice)) ? GetBidVolumeForPrice[CurrentBar][lowPrice] : 1;
+	                ratio = lowBidBase != 0 ? lowBidVol / lowBidBase : 0;
+					
+					// Set signal: +1 if ratio exceeds the LargeRatioThreshold, else 0.
+	    			largeRatioSignal = (ratio > LargeRatioThreshold) ? 1 : 0;
+	            }
+	            else if (Close[0] < Open[0])
+	            {
+	                double maxAsk 		= (GetAskVolumeForPrice[CurrentBar].Keys.Count > 0) ? GetAskVolumeForPrice[CurrentBar].Keys.Max() : 0;
+	                double highAskVol 	= (GetAskVolumeForPrice[CurrentBar].ContainsKey(maxAsk - binInterval)) ? GetAskVolumeForPrice[CurrentBar][maxAsk - binInterval] : 0;
+	                double highAskBase 	= (GetAskVolumeForPrice[CurrentBar].ContainsKey(maxAsk)) ? GetAskVolumeForPrice[CurrentBar][maxAsk] : 1;
+	                ratio = highAskBase != 0 ? highAskVol / highAskBase : 0;
+					
+					// Set signal: -1 if ratio exceeds the LargeRatioThreshold, else 0.
+	    			largeRatioSignal = (ratio > LargeRatioThreshold) ? -1 : 0;
+	            }
+	            else
+	            {
+	                ratio = 0;
+					largeRatioSignal = 0;
+	            }
+				
+				// --- Delta Divergence: Trend reversal signal where lowest/highest bar has opposite delta ---
+				if (CurrentBar >= DivergenceLookback)
+				{			    
+				    int lowestIndex  = LowestBar(Low, DivergenceLookback);
+				    int highestIndex = HighestBar(High, DivergenceLookback);
+				
+				    // For a Long divergence:
+				    // - The current bar is the lowest (i.e. lowestIndex == 0)
+				    // - The current bar is green (Close >= Open)
+				    // - The bar delta is positive.
+				    if (lowestIndex == 0 && Close[0] >= Open[0] && barDelta < 0)
+				    {
+				        divergenceSignal = 1;
+				    }
+				    // For a Short divergence:
+				    // - The current bar is the highest (i.e. highestIndex == 0)
+				    // - The current bar is red (Close < Open)
+				    // - The bar delta is negative.
+				    else if (highestIndex == 0 && Close[0] < Open[0] && barDelta > 0)
+				    {
+				        divergenceSignal = -1;
+				    }
+				    else
+				    {
+				        divergenceSignal = 0;
+				    }
 				}
-            }
-            else
-            {
-                deltaSeqSignal = 0;
-				deltaSignal = "";
-            }
-			
-			// Bar Ratio: Calculate a simple bar ratio between second and base price aggregates ---
-            if (Close[0] > Open[0])
-            {
-                double lowBidVol = (GetBidVolumeForPrice[CurrentBar].ContainsKey(lowPrice + binInterval)) ? GetBidVolumeForPrice[CurrentBar][lowPrice + binInterval] : 0;
-                double lowBidBase = (GetBidVolumeForPrice[CurrentBar].ContainsKey(lowPrice)) ? GetBidVolumeForPrice[CurrentBar][lowPrice] : 1;
-                ratio = lowBidBase != 0 ? lowBidVol / lowBidBase : 0;
+				else
+				{
+				    divergenceSignal = 0;
+				}
 				
-				// Set signal: +1 if ratio exceeds the LargeRatioThreshold, else 0.
-    			largeRatioSignal = (ratio > LargeRatioThreshold) ? 1 : 0;
-            }
-            else if (Close[0] < Open[0])
-            {
-                double maxAsk = (GetAskVolumeForPrice[CurrentBar].Keys.Count > 0) ? GetAskVolumeForPrice[CurrentBar].Keys.Max() : 0;
-                double highAskVol = (GetAskVolumeForPrice[CurrentBar].ContainsKey(maxAsk - binInterval)) ? GetAskVolumeForPrice[CurrentBar][maxAsk - binInterval] : 0;
-                double highAskBase = (GetAskVolumeForPrice[CurrentBar].ContainsKey(maxAsk)) ? GetAskVolumeForPrice[CurrentBar][maxAsk] : 1;
-                ratio = highAskBase != 0 ? highAskVol / highAskBase : 0;
+				// --- Delta Flip: Sudden reverse of delta ---
+				if (CurrentBar >= 1 && GetDeltaForBar.ContainsKey(CurrentBar))
+				{
+				    double bar1Delta    = GetDeltaForBar[CurrentBar - 1];
+				    double bar1MinDelta = GetMinDeltaForBar[CurrentBar - 1];
+				    double bar1MaxDelta = GetMaxDeltaForBar[CurrentBar - 1];
+				    double bar2Delta    = GetDeltaForBar[CurrentBar];
+				    double bar2MinDelta = GetMinDeltaForBar[CurrentBar];
+				    double bar2MaxDelta = GetMaxDeltaForBar[CurrentBar];
+					
+					// Define thresholds
+				    double closeToMinMaxThreshold  = NearZeroaThreshold;
 				
-				// Set signal: -1 if ratio exceeds the LargeRatioThreshold, else 0.
-    			largeRatioSignal = (ratio > LargeRatioThreshold) ? -1 : 0;
-            }
-            else
-            {
-                ratio = 0;
-				largeRatioSignal = 0;
-            }
-			
-			// --- Delta Divergence: Trend reversal signal where lowest/highest bar has opposite delta ---
-			if (CurrentBar >= DivergenceLookback)
-			{			    
-			    int lowestIndex = LowestBar(Low, DivergenceLookback);
-			    int highestIndex = HighestBar(High, DivergenceLookback);
-			
-			    // For a Long divergence:
-			    // - The current bar is the lowest (i.e. lowestIndex == 0)
-			    // - The current bar is green (Close >= Open)
-			    // - The bar delta is positive.
-			    if (lowestIndex == 0 && Close[0] >= Open[0] && barDelta < 0)
-			    {
-			        divergenceSignal = 1;
-			    }
-			    // For a Short divergence:
-			    // - The current bar is the highest (i.e. highestIndex == 0)
-			    // - The current bar is red (Close < Open)
-			    // - The bar delta is negative.
-			    else if (highestIndex == 0 && Close[0] < Open[0] && barDelta > 0)
-			    {
-			        divergenceSignal = -1;
-			    }
-			    else
-			    {
-			        divergenceSignal = 0;
-			    }
-			}
-			else
-			{
-			    divergenceSignal = 0;
-			}
-			
-			// --- Delta Flip: Sudden reverse of delta ---
-			if (CurrentBar >= 1 && GetDeltaForBar.ContainsKey(CurrentBar))
-			{
-			    double bar1Delta    = GetDeltaForBar[CurrentBar - 1];
-			    double bar1MinDelta = GetMinDeltaForBar[CurrentBar - 1];
-			    double bar1MaxDelta = GetMaxDeltaForBar[CurrentBar - 1];
-			    double bar2Delta    = GetDeltaForBar[CurrentBar];
-			    double bar2MinDelta = GetMinDeltaForBar[CurrentBar];
-			    double bar2MaxDelta = GetMaxDeltaForBar[CurrentBar];
+				    // Case A: Bullish Flip
+				    // Previous bar closes on its min-delta and has max-delta ~0,
+				    // Current bar closes on its max-delta and has min-delta ~0.
+				    bool bullishFlip = ( Math.Abs(bar1Delta - bar1MinDelta) < closeToMinMaxThreshold &&
+				                         Math.Abs(bar1MaxDelta) < NearZeroaThreshold &&
+				                         Math.Abs(bar2Delta - bar2MaxDelta) < closeToMinMaxThreshold &&
+				                         Math.Abs(bar2MinDelta) < NearZeroaThreshold );
 				
-				// Define thresholds
-			    double closeToMinMaxThreshold  = 10.0;
-			
-			    // Case A: Bullish Flip
-			    // Previous bar closes on its min-delta and has max-delta ~0,
-			    // Current bar closes on its max-delta and has min-delta ~0.
-			    bool bullishFlip = ( Math.Abs(bar1Delta - bar1MinDelta) < closeToMinMaxThreshold &&
-			                         Math.Abs(bar1MaxDelta) < NearZeroaThreshold &&
-			                         Math.Abs(bar2Delta - bar2MaxDelta) < closeToMinMaxThreshold &&
-			                         Math.Abs(bar2MinDelta) < NearZeroaThreshold );
-			
-			    // Case B: Bearish Flip
-			    // Previous bar closes on its max-delta and has min-delta ~0,
-			    // Current bar closes on its min-delta and has max-delta ~0.
-			    bool bearishFlip = ( Math.Abs(bar1Delta - bar1MaxDelta) < closeToMinMaxThreshold &&
-			                         Math.Abs(bar1MinDelta) < NearZeroaThreshold &&
-			                         Math.Abs(bar2Delta - bar2MinDelta) < closeToMinMaxThreshold &&
-			                         Math.Abs(bar2MaxDelta) < NearZeroaThreshold );
-			
-			    // Set the flip signal based on which case is true
-			    if (bullishFlip)
-			        deltaFlipSignal = 1;
-			    else if (bearishFlip)
-			        deltaFlipSignal = -1;
-			    else
-			        deltaFlipSignal = 0;
-			}
-			else
-			{
-			    deltaFlipSignal = 0;
-			}
-			
-			// --- Delta Flip: Sudden reverse of delta ---
-			if (CurrentBar >= 2 && GetDeltaForBar.ContainsKey(CurrentBar))
-			{
-				double bar1Delta = GetDeltaForBar[CurrentBar - 2];
-			    double bar2Delta = GetDeltaForBar[CurrentBar - 1];
-			    double bar3Delta = GetDeltaForBar[CurrentBar];
-			
-			    
-			    bool bar1BigPos = (bar1Delta >= DeltaThreshold1);
-			    bool bar1BigNeg = (bar1Delta <= -DeltaThreshold1);
-			
-			    bool bar2BigPos = (bar2Delta >= DeltaThreshold1);
-			    bool bar2BigNeg = (bar2Delta <= -DeltaThreshold1);
-			
-			    bool bar3BigPos = (bar3Delta >= DeltaThreshold1);
-			    bool bar3BigNeg = (bar3Delta <= -DeltaThreshold1);
-						    
-			    bool emaSlopeUp   = (EMA(5)[0] > EMA(5)[1]);
-			    bool emaSlopeDown = (EMA(5)[0] < EMA(5)[1]);
-			
-			    bool bar3GapUp   = (GetVALForBar[CurrentBar] > GetVAHForBar[CurrentBar - 1] + binInterval);
-			    bool bar3GapDown = (GetVAHForBar[CurrentBar] < GetVALForBar[CurrentBar - 1] - binInterval);
-			
-			    // -------------
-			    // 5) Build the "Long" condition
-			    //    bar1: big negative delta
-			    //    bar2: big positive delta
-			    //    bar3: EMA(5) slope up, AND (big positive delta OR gap up)
-			    // -------------
-			    bool longTrap = bar1BigNeg 
-			                    && bar2BigPos
-			                    && emaSlopeUp
-			                    && (bar3BigPos || bar3GapUp);
-			
-			    // -------------
-			    // 6) Build the "Short" condition
-			    //    bar1: big positive delta
-			    //    bar2: big negative delta
-			    //    bar3: EMA(5) slope down, AND (big negative delta OR gap down)
-			    // -------------
-			    bool shortTrap = bar1BigPos
-			                     && bar2BigNeg
-			                     && emaSlopeDown
-			                     && (bar3BigNeg || bar3GapDown);
-			
-			    // -------------
-			    // 7) Combine into an integer signal
-			    //    +1 for LONG trap, -1 for SHORT trap, 0 otherwise
-			    // -------------
-			    int deltaTrapSignal = 0;
-			    if (longTrap)
-			        deltaTrapSignal = 1;
-			    else if (shortTrap)
-			        deltaTrapSignal = -1;
-			    else
-			        deltaTrapSignal = 0;
-			} 
-			else
-			{
-			    deltaTrapSignal = 0;
-			}
-			
-			// --- Absorption: Large delta recovering to within the aborption difference threshold
-		    // Bullish Absorption:
-		    // If the bar shows an extreme negative delta (currentMinDelta < -100) and recovers so that it ends above zero...
-		    if (minDelta < -DeltaThreshold1 && barDelta > -NearZeroaThreshold)
-		    {
-		        absorptionSignal = 1;
-		    }
-		    // Bearish Absorption:
-		    // If the bar shows an extreme positive delta (currentMaxDelta > 100) and falls so that its net delta is negative...
-		    else if (maxDelta > DeltaThreshold1 && barDelta < NearZeroaThreshold)
-		    {
-		        absorptionSignal = -1;
-		    }
-		    else
-		    {
-		        absorptionSignal = 0;
-		    }
-			
-			
-			// --- Exhaustion: Based on prints (threshold set to 10 by default)			
-			// Recompute the ordered bins from the aggregated total volume dictionary.
-			var bins = GetTotalVolumeForPrice[CurrentBar].OrderBy(x => x.Key).ToList();
-			if (bins.Count > 0)
-			{
-			    double lowestBin = bins.First().Key;
-			    double highestBin = bins.Last().Key;
-			
-			    // Bearish exhaustion print: red candle with almost no ask volume at the high of the bar.
-			    if (Close[0] < Open[0])  // red candle
+				    // Case B: Bearish Flip
+				    // Previous bar closes on its max-delta and has min-delta ~0,
+				    // Current bar closes on its min-delta and has max-delta ~0.
+				    bool bearishFlip = ( Math.Abs(bar1Delta - bar1MaxDelta) < closeToMinMaxThreshold &&
+				                         Math.Abs(bar1MinDelta) < NearZeroaThreshold &&
+				                         Math.Abs(bar2Delta - bar2MinDelta) < closeToMinMaxThreshold &&
+				                         Math.Abs(bar2MaxDelta) < NearZeroaThreshold );
+				
+				    // Set the flip signal based on which case is true
+				    if (bullishFlip)
+				        deltaFlipSignal = 1;
+				    else if (bearishFlip)
+				        deltaFlipSignal = -1;
+				    else
+				        deltaFlipSignal = 0;
+				}
+				else
+				{
+				    deltaFlipSignal = 0;
+				}
+				
+				// --- Stopping Volume Signal ---
+				if (ascendingBins.Count >= 2 && CurrentBar >= StoppingVolumeLookback)
+				{
+				    // lowest two bins
+				    double lowKey1  = ascendingBins[0].Key;
+				    double lowKey2  = ascendingBins[1].Key;
+				    // highest two bins (manually index from end)
+				    double highKey1 = ascendingBins[ascendingBins.Count - 1].Key;
+				    double highKey2 = ascendingBins[ascendingBins.Count - 2].Key;
+				
+				    // current sums
+				    double currLowBid = 0;
+				    GetBidVolumeForPrice[CurrentBar].TryGetValue(lowKey1, out currLowBid);
+				    GetBidVolumeForPrice[CurrentBar].TryGetValue(lowKey2, out var b2);
+				    currLowBid += b2;
+				
+				    double currHighAsk = 0;
+				    GetAskVolumeForPrice[CurrentBar].TryGetValue(highKey1, out currHighAsk);
+				    GetAskVolumeForPrice[CurrentBar].TryGetValue(highKey2, out var a2);
+				    currHighAsk += a2;
+				
+				    // lookback maxima
+				    double maxPrevLowBid = 0, maxPrevHighAsk = 0;
+				    for (int i = CurrentBar - StoppingVolumeLookback; i < CurrentBar; i++)
+				    {
+				        if (!GetTotalVolumeForPrice.ContainsKey(i)) continue;
+				        var prevBins = GetTotalVolumeForPrice[i].OrderBy(x => x.Key).ToList();
+				        if (prevBins.Count < 2)    continue;
+				
+				        // low-bin bid sum
+				        GetBidVolumeForPrice[i].TryGetValue(prevBins[0].Key, out var pbl1);
+				        GetBidVolumeForPrice[i].TryGetValue(prevBins[1].Key, out var pbl2);
+				        maxPrevLowBid = Math.Max(maxPrevLowBid, pbl1 + pbl2);
+				
+				        // high-bin ask sum
+				        GetAskVolumeForPrice[i].TryGetValue(prevBins[prevBins.Count - 1].Key, out var pah1);
+				        GetAskVolumeForPrice[i].TryGetValue(prevBins[prevBins.Count - 2].Key, out var pah2);
+				        maxPrevHighAsk = Math.Max(maxPrevHighAsk, pah1 + pah2);
+				    }
+				
+				    bool isGreen = Closes[0][0] >= Opens[0][0];
+				    bool isRed   = !isGreen;
+				
+				    stopVolSignal = 0;
+				    if (isGreen && pocBar_FromLow  <= 1 && currLowBid  > maxPrevLowBid)  stopVolSignal =  1;
+				    else if (isRed   && pocBar_FromHigh <= 1 && currHighAsk > maxPrevHighAsk) stopVolSignal = -1;
+				}
+				else
+				    stopVolSignal = 0;
+				
+				
+				// --- Delta Traders: Sudden reverse of delta ---
+				
+				// --- Absorption: Large delta recovering to within the aborption difference threshold
+			    // Bullish Absorption:
+			    // If the bar shows an extreme negative delta (currentMinDelta < -100) and recovers so that it ends above zero...
+			    if (minDelta < -DeltaThreshold1 && barDelta > -NearZeroaThreshold)
 			    {
-			        double askVolAtHigh = GetAskVolumeForPrice[CurrentBar].ContainsKey(highestBin) ? GetAskVolumeForPrice[CurrentBar][highestBin] : 0;
-			        if (askVolAtHigh < ExhaustionThreshold)
-			            exhaustionSignal = -1;
-			        else
-			            exhaustionSignal = 0;
+			        absorptionSignal = 1;
 			    }
-			    // Bullish exhaustion print: green candle with almost no bid volume at the low of the bar.
-			    else if (Close[0] >= Open[0])  // green candle
+			    // Bearish Absorption:
+			    // If the bar shows an extreme positive delta (currentMaxDelta > 100) and falls so that its net delta is negative...
+			    else if (maxDelta > DeltaThreshold1 && barDelta < NearZeroaThreshold)
 			    {
-			        double bidVolAtLow = GetBidVolumeForPrice[CurrentBar].ContainsKey(lowestBin) ? GetBidVolumeForPrice[CurrentBar][lowestBin] : 0;
-			        if (bidVolAtLow < ExhaustionThreshold)
-			            exhaustionSignal = 1;
-			        else
-			            exhaustionSignal = 0;
+			        absorptionSignal = -1;
 			    }
 			    else
 			    {
-			        exhaustionSignal = 0;
+			        absorptionSignal = 0;
 			    }
-			}
-			else
-			{
-			    exhaustionSignal = 0;
-			}
-			
-			// --- vaGapSignal: Check for a gap between the current bar's value area and the previous bar's value area.
-			// For longs: current bar's VAL is above previous bar's VAH by at least one binInterval.
-			// For shorts: current bar's VAH is below previous bar's VAL by at least one binInterval.
-			if (CurrentBar >= 1)
-			{
-			    // Long gap condition: current bar's value area is shifted upward
-			    if (val > GetVAHForBar[CurrentBar - 1] + binInterval)
-			        vaGapSignal = 1;
-			    // Short gap condition: current bar's value area is shifted downward
-			    else if (vah < GetVALForBar[CurrentBar - 1] - binInterval)
-			        vaGapSignal = -1;
-			    else
-			        vaGapSignal = 0;
-			}
-			else
-			{
-			    vaGapSignal = 0;
-			}
+				
+				
+				// --- Exhaustion: Based on prints (threshold set to 10 by default)			
+				// Recompute the ordered bins from the aggregated total volume dictionary.
+				var bins = GetTotalVolumeForPrice[CurrentBar].OrderBy(x => x.Key).ToList();
+				if (bins.Count > 0)
+				{
+				    double lowestBin = bins.First().Key;
+				    double highestBin = bins.Last().Key;
+				
+				    // Bearish exhaustion print: red candle with almost no ask volume at the high of the bar.
+				    if (Close[0] < Open[0])  // red candle
+				    {
+				        double askVolAtHigh = GetAskVolumeForPrice[CurrentBar].ContainsKey(highestBin) ? GetAskVolumeForPrice[CurrentBar][highestBin] : 0;
+				        if (askVolAtHigh < ExhaustionThreshold)
+				            exhaustionSignal = -1;
+				        else
+				            exhaustionSignal = 0;
+				    }
+				    // Bullish exhaustion print: green candle with almost no bid volume at the low of the bar.
+				    else if (Close[0] >= Open[0])  // green candle
+				    {
+				        double bidVolAtLow = GetBidVolumeForPrice[CurrentBar].ContainsKey(lowestBin) ? GetBidVolumeForPrice[CurrentBar][lowestBin] : 0;
+				        if (bidVolAtLow < ExhaustionThreshold)
+				            exhaustionSignal = 1;
+				        else
+				            exhaustionSignal = 0;
+				    }
+				    else
+				    {
+				        exhaustionSignal = 0;
+				    }
+				}
+				else
+				{
+				    exhaustionSignal = 0;
+				}
+				
+				// --- vaGapSignal: Check for a gap between the current bar's value area and the previous bar's value area.
+				// For longs: current bar's VAL is above previous bar's VAH by at least one binInterval.
+				// For shorts: current bar's VAH is below previous bar's VAL by at least one binInterval.
+				if (CurrentBar >= 1)
+				{
+				    // Long gap condition: current bar's value area is shifted upward
+				    if (val > GetVAHForBar[CurrentBar - 1] + binInterval)
+				        vaGapSignal = 1;
+				    // Short gap condition: current bar's value area is shifted downward
+				    else if (vah < GetVALForBar[CurrentBar - 1] - binInterval)
+				        vaGapSignal = -1;
+				    else
+				        vaGapSignal = 0;
+				}
+				else
+				{
+				    vaGapSignal = 0;
+				}
+//			}
 						
 			
 			// --- Set dicitionary values for use in OnRender ---
@@ -1138,11 +1344,17 @@ namespace NinjaTrader.NinjaScript.Indicators
 			GetDeltaSeqForBar[CurrentBar] = deltaSeqSignal;
 			GetDivergenceForBar[CurrentBar] = divergenceSignal;
 			GetDeltaFlipForBar[CurrentBar] = deltaFlipSignal;
-			GetDeltaTrapForBar[CurrentBar] = deltaTrapSignal;
+			GetStoppingVolumeForBar[CurrentBar] = stopVolSignal;
 			GetAbsorptionForBar[CurrentBar] = absorptionSignal;
 			GetExhaustionForBar[CurrentBar] = exhaustionSignal;
 			GetVAGapForBar[CurrentBar] = vaGapSignal;
 			GetLargeRatioForBar[CurrentBar] = largeRatioSignal;
+			
+			// --- Set dictionary POC positions
+			GetPocVAFromLow   [CurrentBar] = pocVA_FromLow;
+			GetPocVAFromHigh  [CurrentBar] = pocVA_FromHigh;
+			GetPocBarFromLow  [CurrentBar] = pocBar_FromLow;
+			GetPocBarFromHigh [CurrentBar] = pocBar_FromHigh;
 			
             // --- Set plot values ---			
 			Values[0][0] = barDelta;
@@ -1165,11 +1377,17 @@ namespace NinjaTrader.NinjaScript.Indicators
             Values[15][0] = deltaSeqSignal;            
 			Values[16][0] = divergenceSignal;
 			Values[17][0] = deltaFlipSignal;
-			Values[18][0] = deltaTrapSignal;
+			Values[18][0] = stopVolSignal;
 			Values[19][0] = absorptionSignal;
 			Values[20][0] = exhaustionSignal;
 			Values[21][0] = vaGapSignal;
 			Values[22][0] = largeRatioSignal;
+			
+			// --- Set plot POC tracking ---
+			Values[23][0] = pocVA_FromLow;
+			Values[24][0] = pocVA_FromHigh;
+			Values[25][0] = pocBar_FromLow;
+			Values[26][0] = pocBar_FromHigh;
 			
 			// --- Show individual signals for predator ---
 			if (EnableVolSeqSignal)
@@ -1191,10 +1409,10 @@ namespace NinjaTrader.NinjaScript.Indicators
 			    DrawSignalDiamond(CurrentBar, "Divergence", divergenceSignal, DivergenceColor, DivergenceDiamondOffset);
 			
 			if (EnableDeltaFlipSignal)
-			    DrawSignalDiamond(CurrentBar, "DeltaFlip", deltaFlipSignal, DeltaSeqColor, DeltaFlipDiamondOffset);  // Replace color if desired.
+			    DrawSignalDiamond(CurrentBar, "DeltaFlip", deltaFlipSignal, DeltaFlipColor, DeltaFlipDiamondOffset);  
 			
-			if (EnableDeltaTrapSignal)
-			    DrawSignalDiamond(CurrentBar, "DeltaTrap", deltaTrapSignal, DeltaSeqColor, DeltaTrapDiamondOffset);  // Replace color if desired.
+			if (EnableStoppingVolumeSignal)
+			    DrawSignalDiamond(CurrentBar, "StopVolTrap", stopVolSignal, StoppingVolumeColor, StoppingVolumeDiamondOffset);  
 			
 			if (EnableAbsorptionSignal)
 			    DrawSignalDiamond(CurrentBar, "Absorption", absorptionSignal, AbsorptionColor, AbsorptionDiamondOffset);
@@ -1236,7 +1454,13 @@ namespace NinjaTrader.NinjaScript.Indicators
 //			          " | Absorption=" + absorptionSignal +
 //			          " | Exhaustion=" + exhaustionSignal +
 //			          " | VAGap=" + vaGapSignal +
-//			          " | LargeRatio=" + largeRatioSignal);
+//			          " | LargeRatio=" + largeRatioSignal +
+//					  " | pocVA_FromLow=" + Values[23][1] +
+//					  " | pocVA_FromHigh=" + Values[24][1] +
+//				      " | pocBar_FromLow=" + Values[25][1] +
+//				      " | pocBar_FromHigh=" + Values[26][1] +
+//				      ""
+//					);
 			}
 
 			}
@@ -1257,133 +1481,151 @@ namespace NinjaTrader.NinjaScript.Indicators
 		    // Get the visible bar range (absolute indices)
 		    int firstBar = ChartBars.FromIndex;
 		    int lastBar  = ChartBars.ToIndex;
-		    float barWidth = (float)chartControl.Properties.BarDistance;
 		
-		    using (TextFormat textFormat = new TextFormat(Core.Globals.DirectWriteFactory, "Arial", StandardFontSize))
-		    {
-		        textFormat.TextAlignment = SharpDX.DirectWrite.TextAlignment.Center;
-		        textFormat.ParagraphAlignment = SharpDX.DirectWrite.ParagraphAlignment.Center;
-		        textFormat.WordWrapping = SharpDX.DirectWrite.WordWrapping.NoWrap;
-		
-				if (EnableFootprint)
-				{
-			        // Loop through each visible bar
+			if (EnableFootprint)
+			{
+				float alpha = VAOpacity / 100f;
+				var baseVAUpColor = ConvertMediaBrushToColor4(BarUpVAColor);
+				var baseVADownColor = ConvertMediaBrushToColor4(BarDownVAColor);
+				var vaUpFinal = new Color4(baseVAUpColor.Red, baseVAUpColor.Green, baseVAUpColor.Blue, alpha);
+				var vaDownFinal = new Color4(baseVADownColor.Red, baseVADownColor.Green, baseVADownColor.Blue, alpha);
+			    // prepare our brushes and text format								
+			    using (var textFormat = new TextFormat(Core.Globals.DirectWriteFactory, "Arial", StandardFontSize)
+			    {
+			        TextAlignment      = SharpDX.DirectWrite.TextAlignment.Center,
+			        ParagraphAlignment = SharpDX.DirectWrite.ParagraphAlignment.Center,
+			        WordWrapping       = SharpDX.DirectWrite.WordWrapping.NoWrap
+			    })				
+			    using (var vaBrushUp       = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget,vaUpFinal))
+			    using (var vaBrushDown     = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, vaDownFinal))
+			    using (var pocFillBrush    = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, ConvertMediaBrushToColor4(POCColor)))
+			    using (var pocOutlineBrush = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, ConvertMediaBrushToColor4(POCOutlineColor)))
+			    {
+			        // occupy 80% of bar distance
+					float barWidth      = (float)chartControl.BarWidth;
+			        float totalBarWidth = (float)chartControl.Properties.BarDistance * 0.8f;
+			        float halfWidth     = totalBarWidth / 2f;
+			        float textHeight    = 24f;  // matches your TextLayout height
+			
+			        // loop visible bars
 			        for (int barIndex = firstBar; barIndex <= lastBar; barIndex++)
 			        {
-			            // Ensure we have aggregated data for this bar
-			            if (!GetTotalVolumeForPrice.ContainsKey(barIndex)
-			             || !GetBidVolumeForPrice.  ContainsKey(barIndex)
-			             || !GetAskVolumeForPrice.  ContainsKey(barIndex)
-			             || !GetPOCForBar.          ContainsKey(barIndex)
-			             || !GetVAHForBar.          ContainsKey(barIndex)
-			             || !GetVALForBar.          ContainsKey(barIndex))
+			            // need aggregated data
+			            if (!GetTotalVolumeForPrice.ContainsKey(barIndex))
 			                continue;
 			
-			            // Retrieve the aggregated dictionaries for the current bar
-			            Dictionary<double, double> aggTotal = GetTotalVolumeForPrice[barIndex];
-			            Dictionary<double, double> aggBid = GetBidVolumeForPrice[barIndex];
-			            Dictionary<double, double> aggAsk = GetAskVolumeForPrice[barIndex];
+			            var aggTotal = GetTotalVolumeForPrice[barIndex];
+			            var aggBid   = GetBidVolumeForPrice  [barIndex];
+			            var aggAsk   = GetAskVolumeForPrice  [barIndex];
+			            double poc   = GetPOCForBar[barIndex];
+			            double VAH   = GetVAHForBar[barIndex];
+			            double VAL   = GetVALForBar[barIndex];
 			
-			            int totalBarVolume = (int)aggTotal.Values.Sum();
-			            if (totalBarVolume <= 0)
-			                continue;
-			
-			            // Order the bins by price in ascending order.
-			            var ascendingBins = aggTotal.OrderBy(x => x.Key).ToList();
+			            // sort bins by price
+			            var ascendingBins = aggTotal.OrderBy(kv => kv.Key).ToList();
 			            if (ascendingBins.Count == 0)
 			                continue;
 			
-			            // >> Retrieve persistent values calculated in OnBarUpdate:
-			            double poc = GetPOCForBar[barIndex];      // The POC (price with maximum volume)
-			            double VAHigh = GetVAHForBar[barIndex];     // The Value Area High boundary
-			            double VALow = GetVALForBar[barIndex];      // The Value Area Low boundary
+			            // bar direction
+			            bool barIsUp = Bars.GetClose(barIndex) >= Bars.GetOpen(barIndex);
 			
-			            // Use the built-in series to determine bar direction.
-			            bool barIsUp = (Bars.GetClose(barIndex) >= Bars.GetOpen(barIndex));
-			
-			            // Get the X coordinate of the bar.
+			            // center X of this bar
 			            float xBar = chartControl.GetXByBarIndex(ChartBars, barIndex);
 			
-			            // Loop through each aggregated price bin for this bar.
+			            // 1) draw Value-Area & POC slabs
+			            foreach (var kv in ascendingBins)
+			            {
+			                double price = kv.Key;
+			                float yTop    = chartScale.GetYByValue(price + AggregationInterval * TickSize);
+			                float yBot    = chartScale.GetYByValue(price);
+			                var rect      = new RectangleF(
+			                                    xBar - totalBarWidth/2f,
+			                                    yTop,
+			                                    totalBarWidth,
+			                                    yBot - yTop);
+			
+			                // VA shading
+			                if (price >= VAL && price <= VAH)
+			                    RenderTarget.FillRectangle(rect, barIsUp ? vaBrushUp : vaBrushDown);
+			
+			                // POC slab + outline
+			                if (Math.Abs(price - poc) < TickSize * 0.5)
+			                {
+			                    RenderTarget.FillRectangle(rect, pocFillBrush);
+			                    RenderTarget.DrawRectangle(rect, pocOutlineBrush, 2f);
+			                }
+			            }
+			
+			            // 2) draw bid/ask text + imbalance tint
 			            for (int i = 0; i < ascendingBins.Count; i++)
 			            {
-			                double binPrice = ascendingBins[i].Key;
-			                float y = chartScale.GetYByValue(binPrice);
+			                double price = ascendingBins[i].Key;
+			                int    bidVol = aggBid .ContainsKey(price) ? (int)aggBid [price] : 0;
+			                int    askVol = aggAsk .ContainsKey(price) ? (int)aggAsk [price] : 0;
 			
-			                float xBid = xBar - barWidth * 0.3f - 20;
-			                float xAsk = xBar + barWidth * 0.3f - 20;
-			                float yText = y - 12;
-			
-			                // >> Check if this bin's price is within the Value Area boundaries.
-			                bool isInValueArea = (binPrice >= VALow && binPrice <= VAHigh);
-			                if (isInValueArea)
+			                // detect diagonal imbalances
+			                bool isAskImb = false, isBidImb = false;
+			                if (i > 0)
 			                {
-			                    // >> Choose color based on bar direction: green if up, red if down.
-			                    var vaColor = barIsUp
-			                        ? new SharpDX.Color4(0f, 1f, 0f, 0.2f)  // Green for up bars
-			                        : new SharpDX.Color4(1f, 0f, 0f, 0.2f); // Red for down bars
-			                    float width = (xAsk - xBid) + 40;
-			                    RectangleF vaRect = new RectangleF(xBid, yText, width, 24);
-			                    using (var vaBrush = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, vaColor))
-			                    {
-			                        RenderTarget.FillRectangle(vaRect, vaBrush);
-			                    }
+			                    double pBelow = ascendingBins[i - 1].Key;
+			                    int    bBelow = aggBid.ContainsKey(pBelow) ? (int)aggBid[pBelow] : 0;
+			                    if (askVol >= ImbFact * bBelow) isAskImb = true;
+			                }
+			                if (i < ascendingBins.Count - 1)
+			                {
+			                    double pAbove = ascendingBins[i + 1].Key;
+			                    int    aAbove = aggAsk.ContainsKey(pAbove) ? (int)aggAsk[pAbove] : 0;
+			                    if (bidVol >= ImbFact * aAbove) isBidImb = true;
 			                }
 			
-			                // Always paint the POC bin (a gray rectangle)
-			                if (Math.Abs(binPrice - poc) < Instrument.MasterInstrument.TickSize * 0.5)
-			                {
-			                    float width = (xAsk - xBid) + 40;
-			                    RectangleF pocRect = new RectangleF(xBid, yText, width, 24);
-			                    using (var pocBrush = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, new SharpDX.Color4(0.5f, 0.5f, 0.5f, 0.7f)))
-			                    {
-			                        RenderTarget.FillRectangle(pocRect, pocBrush);
-			                    }
-			                }
+			                // vertical center of this bin
+			                float yTop = chartScale.GetYByValue(price + AggregationInterval * TickSize);
+			                float yBot = chartScale.GetYByValue(price);
+			                float yMid = (yTop + yBot) * 0.5f - textHeight * 0.5f;
 			
-				            // Retrieve bid and ask volumes from aggregated dictionaries
-				            int bidVol = aggBid.ContainsKey(binPrice) ? (int)aggBid[binPrice] : 0;
-				            int askVol = aggAsk.ContainsKey(binPrice) ? (int)aggAsk[binPrice] : 0;
-				
-				            using (var bidBrush = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, SharpDX.Color.White))
-				            using (var askBrush = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, SharpDX.Color.White))
-				            {
-				                // Simple diagonal imbalance check:
-				                bool isAskImbalance = false;
-				                bool isBidImbalance = false;
-				                if (i > 0)
-				                {
-				                    double binPriceBelow = ascendingBins[i - 1].Key;
-				                    int bidBelow = aggBid.ContainsKey(binPriceBelow) ? (int)aggBid[binPriceBelow] : 0;
-				                    if (askVol >= ImbFact * bidBelow)
-				                        isAskImbalance = true;
-				                }
-				                if (i < ascendingBins.Count - 1)
-				                {
-				                    double binPriceAbove = ascendingBins[i + 1].Key;
-				                    int askAbove = aggAsk.ContainsKey(binPriceAbove) ? (int)aggAsk[binPriceAbove] : 0;
-				                    if (bidVol >= ImbFact * askAbove)
-				                        isBidImbalance = true;
-				                }
-				                if (isAskImbalance)
-				                    askBrush.Color = new SharpDX.Color4(0f, 0.5f, 1f, 1f);
-				                if (isBidImbalance)
-				                    bidBrush.Color = new SharpDX.Color4(1f, 0f, 0f, 1f);
-				
-				                string bidText = bidVol.ToString();
-				                using (TextLayout bidLayout = new TextLayout(Core.Globals.DirectWriteFactory, bidText, textFormat, 40, 24))
-				                {
-				                    RenderTarget.DrawTextLayout(new Vector2(xBid, yText), bidLayout, bidBrush);
-				                }
-				                string askText = askVol.ToString();
-				                using (TextLayout askLayout = new TextLayout(Core.Globals.DirectWriteFactory, askText, textFormat, 40, 24))
-				                {
-				                    RenderTarget.DrawTextLayout(new Vector2(xAsk, yText), askLayout, askBrush);
-				                }
-				            }
-						}
-					}
-				}
+			                // choose tinted brushes
+			                using (var bidBrush = new SharpDX.Direct2D1.SolidColorBrush(
+			                           RenderTarget,
+			                           isBidImb
+			                             ? new Color4(1f, 0f, 0f, 1f)
+			                             : new Color4(1f, 1f, 1f, 1f)))
+			                using (var askBrush = new SharpDX.Direct2D1.SolidColorBrush(
+			                           RenderTarget,
+			                           isAskImb
+			                             ? new Color4(0f, 0.5f, 1f, 1f)
+			                             : new Color4(1f, 1f, 1f, 1f)))
+			                {
+			                    // draw bid in left half
+			                    using (var bidLayout = new TextLayout(
+			                               Core.Globals.DirectWriteFactory,
+			                               bidVol.ToString(),
+			                               textFormat,
+			                               halfWidth,
+			                               textHeight))
+			                        RenderTarget.DrawTextLayout(
+			                            new Vector2(xBar - halfWidth, yMid),
+			                            bidLayout,
+			                            bidBrush);
+			
+			                    // draw ask in right half
+			                    using (var askLayout = new TextLayout(
+			                               Core.Globals.DirectWriteFactory,
+			                               askVol.ToString(),
+			                               textFormat,
+			                               halfWidth,
+			                               textHeight))
+			                        RenderTarget.DrawTextLayout(
+			                            new Vector2(xBar, yMid),
+			                            askLayout,
+			                            askBrush);
+			                }
+			            }
+						DrawCandlestickOverlay(barIndex, chartControl, chartScale, barWidth);
+			        }
+			    }
+			}
+
+
 				if (EnableSignalGrid)
 				{
 					// Loop through each visible bar
@@ -1392,50 +1634,50 @@ namespace NinjaTrader.NinjaScript.Indicators
 						// Get the X coordinate of the bar.
 			            float xBar = chartControl.GetXByBarIndex(ChartBars, barIndex);
 						
-						if (!GetVolSeqForBar.     ContainsKey(barIndex)
-		                 || !GetStackedImbForBar. ContainsKey(barIndex)
-		                 || !GetReversalPOCForBar.ContainsKey(barIndex)
-		                 || !GetSweepForBar.      ContainsKey(barIndex)
-		                 || !GetDeltaSeqForBar.   ContainsKey(barIndex)
-		                 || !GetAbsorptionForBar. ContainsKey(barIndex)
-		                 || !GetExhaustionForBar. ContainsKey(barIndex)
-		                 || !GetVAGapForBar.      ContainsKey(barIndex)
-		                 || !GetLargeRatioForBar. ContainsKey(barIndex))
+						if (!GetVolSeqForBar.     		ContainsKey(barIndex)
+		                 || !GetStackedImbForBar. 		ContainsKey(barIndex)
+		                 || !GetReversalPOCForBar.		ContainsKey(barIndex)
+		                 || !GetSweepForBar.      		ContainsKey(barIndex)
+		                 || !GetDeltaSeqForBar.   		ContainsKey(barIndex)
+						 || !GetDeltaFlipForBar. 		ContainsKey(barIndex)
+						 || !GetStoppingVolumeForBar. 	ContainsKey(barIndex)
+		                 || !GetAbsorptionForBar. 		ContainsKey(barIndex)
+		                 || !GetExhaustionForBar. 		ContainsKey(barIndex)
+		                 || !GetVAGapForBar.      		ContainsKey(barIndex)
+		                 || !GetLargeRatioForBar. 		ContainsKey(barIndex))
 		                    continue;
 						
 						// --- Draw signal grid for each visible bar (if signal data is available)
 						// Build an array of the 10 signal values for this bar:
-						int[] signals = new int[10];
-						signals[0] = GetVolSeqForBar[barIndex];
-						signals[1] = GetStackedImbForBar[barIndex];
-						signals[2] = GetReversalPOCForBar[barIndex];
-						signals[3] = GetSweepForBar[barIndex];
-						signals[4] = GetDeltaSeqForBar[barIndex];
-						signals[5] = GetDivergenceForBar[barIndex];
-						//signals[6] = GetDeltaFlipForBar[barIndex];
-						//signals[7] = GetDeltaTrapForBar[barIndex];
-						signals[6] = GetAbsorptionForBar[barIndex];
-						signals[7] = GetExhaustionForBar[barIndex];
-						signals[8] = GetVAGapForBar[barIndex];
-						signals[9] = GetLargeRatioForBar[barIndex];
+						int[] signals = new int[12];
+						signals[0] 		= GetVolSeqForBar[barIndex];
+						signals[1] 		= GetStackedImbForBar[barIndex];
+						signals[2] 		= GetReversalPOCForBar[barIndex];
+						signals[3] 		= GetSweepForBar[barIndex];
+						signals[4] 		= GetDeltaSeqForBar[barIndex];
+						signals[5] 		= GetDivergenceForBar[barIndex];
+						signals[6] 		= GetDeltaFlipForBar[barIndex];
+						signals[7] 		= GetStoppingVolumeForBar[barIndex];
+						signals[8] 		= GetAbsorptionForBar[barIndex];
+						signals[9] 		= GetExhaustionForBar[barIndex];
+						signals[10] 	= GetVAGapForBar[barIndex];
+						signals[11] 	= GetLargeRatioForBar[barIndex];
 						
 						// Define the corresponding color for each signal cell:
-						SharpDX.Color4[] signalColors = new SharpDX.Color4[10];
-						signalColors[0] = ConvertMediaBrushToColor4(VolSeqColor);
-						signalColors[1] = ConvertMediaBrushToColor4(StackedImbColor);
-						signalColors[2] = ConvertMediaBrushToColor4(RevPOCColor);
-						signalColors[3] = ConvertMediaBrushToColor4(SweepColor);
-						signalColors[4] = ConvertMediaBrushToColor4(DeltaSeqColor);
-						signalColors[5] = ConvertMediaBrushToColor4(DivergenceColor);
-						signalColors[6] = ConvertMediaBrushToColor4(AbsorptionColor);
-						signalColors[7] = ConvertMediaBrushToColor4(ExhaustionColor);
-						signalColors[8] = ConvertMediaBrushToColor4(VAGapColor);
-						signalColors[9] = ConvertMediaBrushToColor4(LargeRatioColor);
-						
-						
-						
-				
-						
+						SharpDX.Color4[] signalColors = new SharpDX.Color4[12];
+						signalColors[0] 	= ConvertMediaBrushToColor4(VolSeqColor);
+						signalColors[1] 	= ConvertMediaBrushToColor4(StackedImbColor);
+						signalColors[2] 	= ConvertMediaBrushToColor4(RevPOCColor);
+						signalColors[3] 	= ConvertMediaBrushToColor4(SweepColor);
+						signalColors[4] 	= ConvertMediaBrushToColor4(DeltaSeqColor);
+						signalColors[5] 	= ConvertMediaBrushToColor4(DivergenceColor);
+						signalColors[6] 	= ConvertMediaBrushToColor4(DeltaFlipColor);
+						signalColors[7] 	= ConvertMediaBrushToColor4(StoppingVolumeColor);
+						signalColors[8] 	= ConvertMediaBrushToColor4(AbsorptionColor);
+						signalColors[9] 	= ConvertMediaBrushToColor4(ExhaustionColor);
+						signalColors[10] 	= ConvertMediaBrushToColor4(VAGapColor);
+						signalColors[11] 	= ConvertMediaBrushToColor4(LargeRatioColor);
+
 						// --- Determine if there are positive or negative signals for this bar
 						bool hasLong = false;
 						bool hasShort = false;
@@ -1454,7 +1696,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 						    int GridCellSize = 10;    // Each cell is 20x20 pixels
 						    int GridOffset = SignalGridOffset;      // Distance from bar low
 						    int gridCols = 2;
-						    int gridRows = 5;
+						    int gridRows = 6;
 						    int gridWidth = gridCols * GridCellSize;
 						    int gridHeight = gridRows * GridCellSize;
 						    //float xBar = chartControl.GetXByBarIndex(ChartBars, barIndex);
@@ -1496,7 +1738,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 						    int GridCellSize = 10;    // Each cell is 20x20 pixels
 						    int GridOffset = SignalGridOffset;    // Distance from bar high
 						    int gridCols = 2;
-						    int gridRows = 5;
+						    int gridRows = 6;
 						    int gridWidth = gridCols * GridCellSize;
 						    int gridHeight = gridRows * GridCellSize;
 						    //float xBar = chartControl.GetXByBarIndex(ChartBars, barIndex);
@@ -1534,9 +1776,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 					}
 
 		        }
-		    }
+		    
 			// Draw signal grid legend
-			if (EnableSignalGrid)
+			if (EnableSignalGridLegend)
 				DrawLegend(chartControl, chartScale);
 
 		    // Draw persistent computed values below each bar
@@ -1555,8 +1797,8 @@ namespace NinjaTrader.NinjaScript.Indicators
 		    int columnWidth  = 150;  // total horizontal space per column (square + label)
 		    int margin       = 60;   // distance from the chart edge
 		    
-		    // We have 5 rows x 2 columns = 10 signals
-		    int legendRows   = 5;
+		    // We have 6 rows x 2 columns = 12 signals
+		    int legendRows   = 6;
 		    int legendCols   = 2;
 		    
 		    // Position the legend near the top-right
@@ -1566,23 +1808,35 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		    // The labels for your 10 signals, row-major order:
 		    string[] signalLabels = new string[]
-		    {
-		        "Volume Sequence", "Stacked Imbalance", "Reverse POC", "Sweep", "Delta Sequence",
-		        "Divergence", "Absorption", "Exhaustion", "Value Area Gap", "Large Ratio"
-		    };
+			{
+			    "Volume Sequence",   // 0
+			    "Stacked Imbalance",  // 1
+			    "Reverse POC",        // 2
+			    "Sweep",              // 3
+			    "Delta Sequence",     // 4
+			    "Divergence",         // 5
+			    "Delta Flip",         // 6 
+			    "Stopping Volume",    // 7 
+			    "Absorption",         // 8
+			    "Exhaustion",         // 9
+			    "Value Area Gap",     // 10
+			    "Large Ratio"         // 11
+			};
 		
 		    // Corresponding colors for each label
-		    SharpDX.Color4[] legendColors = new SharpDX.Color4[10];
-		    legendColors[0] = ConvertMediaBrushToColor4(VolSeqColor);
-		    legendColors[1] = ConvertMediaBrushToColor4(StackedImbColor);
-		    legendColors[2] = ConvertMediaBrushToColor4(RevPOCColor);
-		    legendColors[3] = ConvertMediaBrushToColor4(SweepColor);
-		    legendColors[4] = ConvertMediaBrushToColor4(DeltaSeqColor);
-		    legendColors[5] = ConvertMediaBrushToColor4(DivergenceColor);
-		    legendColors[6] = ConvertMediaBrushToColor4(AbsorptionColor);
-		    legendColors[7] = ConvertMediaBrushToColor4(ExhaustionColor);
-		    legendColors[8] = ConvertMediaBrushToColor4(VAGapColor);
-		    legendColors[9] = ConvertMediaBrushToColor4(LargeRatioColor);
+		    SharpDX.Color4[] legendColors = new SharpDX.Color4[12];
+		    legendColors[0] 	= ConvertMediaBrushToColor4(VolSeqColor);
+		    legendColors[1] 	= ConvertMediaBrushToColor4(StackedImbColor);
+		    legendColors[2] 	= ConvertMediaBrushToColor4(RevPOCColor);
+		    legendColors[3] 	= ConvertMediaBrushToColor4(SweepColor);
+		    legendColors[4] 	= ConvertMediaBrushToColor4(DeltaSeqColor);
+		    legendColors[5] 	= ConvertMediaBrushToColor4(DivergenceColor);
+			legendColors[6] 	= ConvertMediaBrushToColor4(DeltaFlipColor);
+			legendColors[7] 	= ConvertMediaBrushToColor4(StoppingVolumeColor);
+		    legendColors[8] 	= ConvertMediaBrushToColor4(AbsorptionColor);
+		    legendColors[9] 	= ConvertMediaBrushToColor4(ExhaustionColor);
+		    legendColors[10] 	= ConvertMediaBrushToColor4(VAGapColor);
+		    legendColors[11] 	= ConvertMediaBrushToColor4(LargeRatioColor);
 		
 		    // Create a text format for the legend labels
 		    using (TextFormat legendTextFormat = new TextFormat(Core.Globals.DirectWriteFactory, "Arial", 14))
@@ -1829,18 +2083,74 @@ namespace NinjaTrader.NinjaScript.Indicators
 		#endregion
 
         #region Helper Methods
+		private void DrawCandlestickOverlay(int barIndex, ChartControl chartControl, ChartScale chartScale, float barWidth)
+		{
+		    // pick the media brush for up/down
+		    var mediaBarBrush = Bars.GetClose(barIndex) >= Bars.GetOpen(barIndex)
+		        ? BarUpColor
+		        : BarDownColor;
+			var mediaOutlineBrush = Bars.GetClose(barIndex) >= Bars.GetOpen(barIndex)
+		        ? BarUpOutlineColor
+		        : BarDownOutlineColor;
+		
+		    // convert to a SharpDX brush
+			using (var outlineBrush = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, ConvertMediaBrushToColor4(mediaOutlineBrush)))
+		    using (var barBrush = new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, ConvertMediaBrushToColor4(mediaBarBrush)))
+		    {
+
+		        // compute pixels
+		        float yHigh  = chartScale.GetYByValue(Bars.GetHigh(barIndex));
+		        float yLow   = chartScale.GetYByValue(Bars.GetLow(barIndex));
+		        float yOpen  = chartScale.GetYByValue(Bars.GetOpen(barIndex));
+		        float yClose = chartScale.GetYByValue(Bars.GetClose(barIndex));
+				float top    = Math.Min(yOpen, yClose);
+				float bottom = Math.Max(yOpen, yClose);
+		        float xCenter = chartControl.GetXByBarIndex(ChartBars, barIndex);
+				
+				// Draw the wicks
+		        RenderTarget.DrawLine(new Vector2(xCenter, yHigh),  new Vector2(xCenter, top),    outlineBrush, 1f);
+		        RenderTarget.DrawLine(new Vector2(xCenter, bottom), new Vector2(xCenter, yLow),     outlineBrush, 1f);
+		
+		        // Draw the candle body
+		        
+		        var bodyRect = new RectangleF(
+		            chartControl.GetXByBarIndex(ChartBars, barIndex) - barWidth - 0.5f,
+		            top,
+		            barWidth * 2f,
+		            bottom - top);
+		        RenderTarget.FillRectangle(bodyRect, barBrush);
+				RenderTarget.DrawRectangle(bodyRect, outlineBrush, 1f);
+		
+		        
+		    }
+		}
 		private void DrawSignalDiamond(int bar, string signalName, int signalValue, System.Windows.Media.Brush signalBrush, int offsetValue)
 		{
+		    // build both possible tags
+		    string longTag  = signalName + "_long_"  + bar;
+		    string shortTag = signalName + "_short_" + bar;
+		    
+		    // 1) always clear any existing diamond for this bar/signal  
+		    RemoveDrawObject(longTag);
+		    RemoveDrawObject(shortTag);
+		
+		    // 2) if the new value is zero, we’re done (nothing to draw)
 		    if (signalValue == 0)
 		        return;
 		
-		    double offset = TickSize * offsetValue;
-		    double yCoordinate = (signalValue > 0) ? Low[0] - offset : High[0] + offset;			
-			string tagSuffix = (signalValue > 0) ? "_long_" : "_short_";
-		    string tag = signalName + tagSuffix + bar.ToString();
+		    // 3) otherwise draw the new one
+		    double offset     = TickSize * offsetValue;
+		    double yCoordinate = (signalValue > 0) 
+		        ? Low[0]  - offset 
+		        : High[0] + offset;
+		
+		    // pick the correct tag
+		    string tagSuffix = (signalValue > 0) ? "_long_" : "_short_";
+		    string tag       = signalName + tagSuffix + bar;
 		
 		    Draw.Diamond(this, tag, true, 0, yCoordinate, signalBrush);
 		}
+
 		private SharpDX.Color4 ConvertMediaBrushToColor4(System.Windows.Media.Brush mediaBrush)
 		{
 		    var scb = mediaBrush as System.Windows.Media.SolidColorBrush;
@@ -1873,18 +2183,18 @@ namespace NinjaTrader.NinjaScript.Indicators
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
 		private FootprintOrderFlow[] cacheFootprintOrderFlow;
-		public FootprintOrderFlow FootprintOrderFlow(int aggregationInterval, double valueAreaPer, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, int signalGridOffset, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableDeltaTrapSignal, int deltaTrapDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
+		public FootprintOrderFlow FootprintOrderFlow(int aggregationInterval, double valueAreaPer, bool useSessionOpenForAggregation, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, int stoppingVolumeLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, bool enableSignalGridLegend, int signalGridOffset, System.Windows.Media.Brush barUpColor, System.Windows.Media.Brush barDownColor, System.Windows.Media.Brush barUpOutlineColor, System.Windows.Media.Brush barDownOutlineColor, System.Windows.Media.Brush barUpVAColor, System.Windows.Media.Brush barDownVAColor, int vAOpacity, System.Windows.Media.Brush pOCColor, System.Windows.Media.Brush pOCOutlineColor, System.Windows.Media.Brush pOCTextColor, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, System.Windows.Media.Brush deltaFlipColor, System.Windows.Media.Brush stoppingVolumeColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableStoppingVolumeSignal, int stoppingVolumeDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
 		{
-			return FootprintOrderFlow(Input, aggregationInterval, valueAreaPer, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, signalGridOffset, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableDeltaTrapSignal, deltaTrapDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
+			return FootprintOrderFlow(Input, aggregationInterval, valueAreaPer, useSessionOpenForAggregation, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, stoppingVolumeLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, enableSignalGridLegend, signalGridOffset, barUpColor, barDownColor, barUpOutlineColor, barDownOutlineColor, barUpVAColor, barDownVAColor, vAOpacity, pOCColor, pOCOutlineColor, pOCTextColor, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, deltaFlipColor, stoppingVolumeColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableStoppingVolumeSignal, stoppingVolumeDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
 		}
 
-		public FootprintOrderFlow FootprintOrderFlow(ISeries<double> input, int aggregationInterval, double valueAreaPer, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, int signalGridOffset, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableDeltaTrapSignal, int deltaTrapDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
+		public FootprintOrderFlow FootprintOrderFlow(ISeries<double> input, int aggregationInterval, double valueAreaPer, bool useSessionOpenForAggregation, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, int stoppingVolumeLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, bool enableSignalGridLegend, int signalGridOffset, System.Windows.Media.Brush barUpColor, System.Windows.Media.Brush barDownColor, System.Windows.Media.Brush barUpOutlineColor, System.Windows.Media.Brush barDownOutlineColor, System.Windows.Media.Brush barUpVAColor, System.Windows.Media.Brush barDownVAColor, int vAOpacity, System.Windows.Media.Brush pOCColor, System.Windows.Media.Brush pOCOutlineColor, System.Windows.Media.Brush pOCTextColor, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, System.Windows.Media.Brush deltaFlipColor, System.Windows.Media.Brush stoppingVolumeColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableStoppingVolumeSignal, int stoppingVolumeDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
 		{
 			if (cacheFootprintOrderFlow != null)
 				for (int idx = 0; idx < cacheFootprintOrderFlow.Length; idx++)
-					if (cacheFootprintOrderFlow[idx] != null && cacheFootprintOrderFlow[idx].AggregationInterval == aggregationInterval && cacheFootprintOrderFlow[idx].ValueAreaPer == valueAreaPer && cacheFootprintOrderFlow[idx].VolumeSeqLookback == volumeSeqLookback && cacheFootprintOrderFlow[idx].StackedImbalanceLookback == stackedImbalanceLookback && cacheFootprintOrderFlow[idx].DeltaSequenceLookback == deltaSequenceLookback && cacheFootprintOrderFlow[idx].SweepLookback == sweepLookback && cacheFootprintOrderFlow[idx].DivergenceLookback == divergenceLookback && cacheFootprintOrderFlow[idx].ImbFact == imbFact && cacheFootprintOrderFlow[idx].LargeRatioThreshold == largeRatioThreshold && cacheFootprintOrderFlow[idx].SmallRatioThreshold == smallRatioThreshold && cacheFootprintOrderFlow[idx].DeltaThreshold1 == deltaThreshold1 && cacheFootprintOrderFlow[idx].DeltaThreshold2 == deltaThreshold2 && cacheFootprintOrderFlow[idx].VolumeThreshold == volumeThreshold && cacheFootprintOrderFlow[idx].NearZeroaThreshold == nearZeroaThreshold && cacheFootprintOrderFlow[idx].ExhaustionThreshold == exhaustionThreshold && cacheFootprintOrderFlow[idx].StandardFontSize == standardFontSize && cacheFootprintOrderFlow[idx].EnableFootprint == enableFootprint && cacheFootprintOrderFlow[idx].EnableSummaryGrid == enableSummaryGrid && cacheFootprintOrderFlow[idx].EnableSignalGrid == enableSignalGrid && cacheFootprintOrderFlow[idx].SignalGridOffset == signalGridOffset && cacheFootprintOrderFlow[idx].DeltaLowPositiveColor == deltaLowPositiveColor && cacheFootprintOrderFlow[idx].DeltaMediumPositiveColor == deltaMediumPositiveColor && cacheFootprintOrderFlow[idx].DeltaHighPositiveColor == deltaHighPositiveColor && cacheFootprintOrderFlow[idx].DeltaLowNegativeColor == deltaLowNegativeColor && cacheFootprintOrderFlow[idx].DeltaMediumNegativeColor == deltaMediumNegativeColor && cacheFootprintOrderFlow[idx].DeltaHighNegativeColor == deltaHighNegativeColor && cacheFootprintOrderFlow[idx].HighVolumeColor == highVolumeColor && cacheFootprintOrderFlow[idx].ZeroDeltaColor == zeroDeltaColor && cacheFootprintOrderFlow[idx].VolSeqColor == volSeqColor && cacheFootprintOrderFlow[idx].StackedImbColor == stackedImbColor && cacheFootprintOrderFlow[idx].RevPOCColor == revPOCColor && cacheFootprintOrderFlow[idx].SweepColor == sweepColor && cacheFootprintOrderFlow[idx].DeltaSeqColor == deltaSeqColor && cacheFootprintOrderFlow[idx].DivergenceColor == divergenceColor && cacheFootprintOrderFlow[idx].AbsorptionColor == absorptionColor && cacheFootprintOrderFlow[idx].ExhaustionColor == exhaustionColor && cacheFootprintOrderFlow[idx].VAGapColor == vAGapColor && cacheFootprintOrderFlow[idx].LargeRatioColor == largeRatioColor && cacheFootprintOrderFlow[idx].EnableVolSeqSignal == enableVolSeqSignal && cacheFootprintOrderFlow[idx].VolSeqDiamondOffset == volSeqDiamondOffset && cacheFootprintOrderFlow[idx].EnableStackedImbSignal == enableStackedImbSignal && cacheFootprintOrderFlow[idx].StackedImbDiamondOffset == stackedImbDiamondOffset && cacheFootprintOrderFlow[idx].EnableReversalPOCSignal == enableReversalPOCSignal && cacheFootprintOrderFlow[idx].ReversalPOCDiamondOffset == reversalPOCDiamondOffset && cacheFootprintOrderFlow[idx].EnableSweepSignal == enableSweepSignal && cacheFootprintOrderFlow[idx].SweepDiamondOffset == sweepDiamondOffset && cacheFootprintOrderFlow[idx].EnableDeltaSeqSignal == enableDeltaSeqSignal && cacheFootprintOrderFlow[idx].DeltaSeqDiamondOffset == deltaSeqDiamondOffset && cacheFootprintOrderFlow[idx].EnableDivergenceSignal == enableDivergenceSignal && cacheFootprintOrderFlow[idx].DivergenceDiamondOffset == divergenceDiamondOffset && cacheFootprintOrderFlow[idx].EnableDeltaFlipSignal == enableDeltaFlipSignal && cacheFootprintOrderFlow[idx].DeltaFlipDiamondOffset == deltaFlipDiamondOffset && cacheFootprintOrderFlow[idx].EnableDeltaTrapSignal == enableDeltaTrapSignal && cacheFootprintOrderFlow[idx].DeltaTrapDiamondOffset == deltaTrapDiamondOffset && cacheFootprintOrderFlow[idx].EnableAbsorptionSignal == enableAbsorptionSignal && cacheFootprintOrderFlow[idx].AbsorptionDiamondOffset == absorptionDiamondOffset && cacheFootprintOrderFlow[idx].EnableExhaustionSignal == enableExhaustionSignal && cacheFootprintOrderFlow[idx].ExhaustionDiamondOffset == exhaustionDiamondOffset && cacheFootprintOrderFlow[idx].EnableVAGapSignal == enableVAGapSignal && cacheFootprintOrderFlow[idx].VAGapDiamondOffset == vAGapDiamondOffset && cacheFootprintOrderFlow[idx].EnableLargeRatioSignal == enableLargeRatioSignal && cacheFootprintOrderFlow[idx].LargeRatioDiamondOffset == largeRatioDiamondOffset && cacheFootprintOrderFlow[idx].EqualsInput(input))
+					if (cacheFootprintOrderFlow[idx] != null && cacheFootprintOrderFlow[idx].AggregationInterval == aggregationInterval && cacheFootprintOrderFlow[idx].ValueAreaPer == valueAreaPer && cacheFootprintOrderFlow[idx].UseSessionOpenForAggregation == useSessionOpenForAggregation && cacheFootprintOrderFlow[idx].VolumeSeqLookback == volumeSeqLookback && cacheFootprintOrderFlow[idx].StackedImbalanceLookback == stackedImbalanceLookback && cacheFootprintOrderFlow[idx].DeltaSequenceLookback == deltaSequenceLookback && cacheFootprintOrderFlow[idx].SweepLookback == sweepLookback && cacheFootprintOrderFlow[idx].DivergenceLookback == divergenceLookback && cacheFootprintOrderFlow[idx].StoppingVolumeLookback == stoppingVolumeLookback && cacheFootprintOrderFlow[idx].ImbFact == imbFact && cacheFootprintOrderFlow[idx].LargeRatioThreshold == largeRatioThreshold && cacheFootprintOrderFlow[idx].SmallRatioThreshold == smallRatioThreshold && cacheFootprintOrderFlow[idx].DeltaThreshold1 == deltaThreshold1 && cacheFootprintOrderFlow[idx].DeltaThreshold2 == deltaThreshold2 && cacheFootprintOrderFlow[idx].VolumeThreshold == volumeThreshold && cacheFootprintOrderFlow[idx].NearZeroaThreshold == nearZeroaThreshold && cacheFootprintOrderFlow[idx].ExhaustionThreshold == exhaustionThreshold && cacheFootprintOrderFlow[idx].StandardFontSize == standardFontSize && cacheFootprintOrderFlow[idx].EnableFootprint == enableFootprint && cacheFootprintOrderFlow[idx].EnableSummaryGrid == enableSummaryGrid && cacheFootprintOrderFlow[idx].EnableSignalGrid == enableSignalGrid && cacheFootprintOrderFlow[idx].EnableSignalGridLegend == enableSignalGridLegend && cacheFootprintOrderFlow[idx].SignalGridOffset == signalGridOffset && cacheFootprintOrderFlow[idx].BarUpColor == barUpColor && cacheFootprintOrderFlow[idx].BarDownColor == barDownColor && cacheFootprintOrderFlow[idx].BarUpOutlineColor == barUpOutlineColor && cacheFootprintOrderFlow[idx].BarDownOutlineColor == barDownOutlineColor && cacheFootprintOrderFlow[idx].BarUpVAColor == barUpVAColor && cacheFootprintOrderFlow[idx].BarDownVAColor == barDownVAColor && cacheFootprintOrderFlow[idx].VAOpacity == vAOpacity && cacheFootprintOrderFlow[idx].POCColor == pOCColor && cacheFootprintOrderFlow[idx].POCOutlineColor == pOCOutlineColor && cacheFootprintOrderFlow[idx].POCTextColor == pOCTextColor && cacheFootprintOrderFlow[idx].DeltaLowPositiveColor == deltaLowPositiveColor && cacheFootprintOrderFlow[idx].DeltaMediumPositiveColor == deltaMediumPositiveColor && cacheFootprintOrderFlow[idx].DeltaHighPositiveColor == deltaHighPositiveColor && cacheFootprintOrderFlow[idx].DeltaLowNegativeColor == deltaLowNegativeColor && cacheFootprintOrderFlow[idx].DeltaMediumNegativeColor == deltaMediumNegativeColor && cacheFootprintOrderFlow[idx].DeltaHighNegativeColor == deltaHighNegativeColor && cacheFootprintOrderFlow[idx].HighVolumeColor == highVolumeColor && cacheFootprintOrderFlow[idx].ZeroDeltaColor == zeroDeltaColor && cacheFootprintOrderFlow[idx].VolSeqColor == volSeqColor && cacheFootprintOrderFlow[idx].StackedImbColor == stackedImbColor && cacheFootprintOrderFlow[idx].RevPOCColor == revPOCColor && cacheFootprintOrderFlow[idx].SweepColor == sweepColor && cacheFootprintOrderFlow[idx].DeltaSeqColor == deltaSeqColor && cacheFootprintOrderFlow[idx].DivergenceColor == divergenceColor && cacheFootprintOrderFlow[idx].AbsorptionColor == absorptionColor && cacheFootprintOrderFlow[idx].ExhaustionColor == exhaustionColor && cacheFootprintOrderFlow[idx].VAGapColor == vAGapColor && cacheFootprintOrderFlow[idx].LargeRatioColor == largeRatioColor && cacheFootprintOrderFlow[idx].DeltaFlipColor == deltaFlipColor && cacheFootprintOrderFlow[idx].StoppingVolumeColor == stoppingVolumeColor && cacheFootprintOrderFlow[idx].EnableVolSeqSignal == enableVolSeqSignal && cacheFootprintOrderFlow[idx].VolSeqDiamondOffset == volSeqDiamondOffset && cacheFootprintOrderFlow[idx].EnableStackedImbSignal == enableStackedImbSignal && cacheFootprintOrderFlow[idx].StackedImbDiamondOffset == stackedImbDiamondOffset && cacheFootprintOrderFlow[idx].EnableReversalPOCSignal == enableReversalPOCSignal && cacheFootprintOrderFlow[idx].ReversalPOCDiamondOffset == reversalPOCDiamondOffset && cacheFootprintOrderFlow[idx].EnableSweepSignal == enableSweepSignal && cacheFootprintOrderFlow[idx].SweepDiamondOffset == sweepDiamondOffset && cacheFootprintOrderFlow[idx].EnableDeltaSeqSignal == enableDeltaSeqSignal && cacheFootprintOrderFlow[idx].DeltaSeqDiamondOffset == deltaSeqDiamondOffset && cacheFootprintOrderFlow[idx].EnableDivergenceSignal == enableDivergenceSignal && cacheFootprintOrderFlow[idx].DivergenceDiamondOffset == divergenceDiamondOffset && cacheFootprintOrderFlow[idx].EnableDeltaFlipSignal == enableDeltaFlipSignal && cacheFootprintOrderFlow[idx].DeltaFlipDiamondOffset == deltaFlipDiamondOffset && cacheFootprintOrderFlow[idx].EnableStoppingVolumeSignal == enableStoppingVolumeSignal && cacheFootprintOrderFlow[idx].StoppingVolumeDiamondOffset == stoppingVolumeDiamondOffset && cacheFootprintOrderFlow[idx].EnableAbsorptionSignal == enableAbsorptionSignal && cacheFootprintOrderFlow[idx].AbsorptionDiamondOffset == absorptionDiamondOffset && cacheFootprintOrderFlow[idx].EnableExhaustionSignal == enableExhaustionSignal && cacheFootprintOrderFlow[idx].ExhaustionDiamondOffset == exhaustionDiamondOffset && cacheFootprintOrderFlow[idx].EnableVAGapSignal == enableVAGapSignal && cacheFootprintOrderFlow[idx].VAGapDiamondOffset == vAGapDiamondOffset && cacheFootprintOrderFlow[idx].EnableLargeRatioSignal == enableLargeRatioSignal && cacheFootprintOrderFlow[idx].LargeRatioDiamondOffset == largeRatioDiamondOffset && cacheFootprintOrderFlow[idx].EqualsInput(input))
 						return cacheFootprintOrderFlow[idx];
-			return CacheIndicator<FootprintOrderFlow>(new FootprintOrderFlow(){ AggregationInterval = aggregationInterval, ValueAreaPer = valueAreaPer, VolumeSeqLookback = volumeSeqLookback, StackedImbalanceLookback = stackedImbalanceLookback, DeltaSequenceLookback = deltaSequenceLookback, SweepLookback = sweepLookback, DivergenceLookback = divergenceLookback, ImbFact = imbFact, LargeRatioThreshold = largeRatioThreshold, SmallRatioThreshold = smallRatioThreshold, DeltaThreshold1 = deltaThreshold1, DeltaThreshold2 = deltaThreshold2, VolumeThreshold = volumeThreshold, NearZeroaThreshold = nearZeroaThreshold, ExhaustionThreshold = exhaustionThreshold, StandardFontSize = standardFontSize, EnableFootprint = enableFootprint, EnableSummaryGrid = enableSummaryGrid, EnableSignalGrid = enableSignalGrid, SignalGridOffset = signalGridOffset, DeltaLowPositiveColor = deltaLowPositiveColor, DeltaMediumPositiveColor = deltaMediumPositiveColor, DeltaHighPositiveColor = deltaHighPositiveColor, DeltaLowNegativeColor = deltaLowNegativeColor, DeltaMediumNegativeColor = deltaMediumNegativeColor, DeltaHighNegativeColor = deltaHighNegativeColor, HighVolumeColor = highVolumeColor, ZeroDeltaColor = zeroDeltaColor, VolSeqColor = volSeqColor, StackedImbColor = stackedImbColor, RevPOCColor = revPOCColor, SweepColor = sweepColor, DeltaSeqColor = deltaSeqColor, DivergenceColor = divergenceColor, AbsorptionColor = absorptionColor, ExhaustionColor = exhaustionColor, VAGapColor = vAGapColor, LargeRatioColor = largeRatioColor, EnableVolSeqSignal = enableVolSeqSignal, VolSeqDiamondOffset = volSeqDiamondOffset, EnableStackedImbSignal = enableStackedImbSignal, StackedImbDiamondOffset = stackedImbDiamondOffset, EnableReversalPOCSignal = enableReversalPOCSignal, ReversalPOCDiamondOffset = reversalPOCDiamondOffset, EnableSweepSignal = enableSweepSignal, SweepDiamondOffset = sweepDiamondOffset, EnableDeltaSeqSignal = enableDeltaSeqSignal, DeltaSeqDiamondOffset = deltaSeqDiamondOffset, EnableDivergenceSignal = enableDivergenceSignal, DivergenceDiamondOffset = divergenceDiamondOffset, EnableDeltaFlipSignal = enableDeltaFlipSignal, DeltaFlipDiamondOffset = deltaFlipDiamondOffset, EnableDeltaTrapSignal = enableDeltaTrapSignal, DeltaTrapDiamondOffset = deltaTrapDiamondOffset, EnableAbsorptionSignal = enableAbsorptionSignal, AbsorptionDiamondOffset = absorptionDiamondOffset, EnableExhaustionSignal = enableExhaustionSignal, ExhaustionDiamondOffset = exhaustionDiamondOffset, EnableVAGapSignal = enableVAGapSignal, VAGapDiamondOffset = vAGapDiamondOffset, EnableLargeRatioSignal = enableLargeRatioSignal, LargeRatioDiamondOffset = largeRatioDiamondOffset }, input, ref cacheFootprintOrderFlow);
+			return CacheIndicator<FootprintOrderFlow>(new FootprintOrderFlow(){ AggregationInterval = aggregationInterval, ValueAreaPer = valueAreaPer, UseSessionOpenForAggregation = useSessionOpenForAggregation, VolumeSeqLookback = volumeSeqLookback, StackedImbalanceLookback = stackedImbalanceLookback, DeltaSequenceLookback = deltaSequenceLookback, SweepLookback = sweepLookback, DivergenceLookback = divergenceLookback, StoppingVolumeLookback = stoppingVolumeLookback, ImbFact = imbFact, LargeRatioThreshold = largeRatioThreshold, SmallRatioThreshold = smallRatioThreshold, DeltaThreshold1 = deltaThreshold1, DeltaThreshold2 = deltaThreshold2, VolumeThreshold = volumeThreshold, NearZeroaThreshold = nearZeroaThreshold, ExhaustionThreshold = exhaustionThreshold, StandardFontSize = standardFontSize, EnableFootprint = enableFootprint, EnableSummaryGrid = enableSummaryGrid, EnableSignalGrid = enableSignalGrid, EnableSignalGridLegend = enableSignalGridLegend, SignalGridOffset = signalGridOffset, BarUpColor = barUpColor, BarDownColor = barDownColor, BarUpOutlineColor = barUpOutlineColor, BarDownOutlineColor = barDownOutlineColor, BarUpVAColor = barUpVAColor, BarDownVAColor = barDownVAColor, VAOpacity = vAOpacity, POCColor = pOCColor, POCOutlineColor = pOCOutlineColor, POCTextColor = pOCTextColor, DeltaLowPositiveColor = deltaLowPositiveColor, DeltaMediumPositiveColor = deltaMediumPositiveColor, DeltaHighPositiveColor = deltaHighPositiveColor, DeltaLowNegativeColor = deltaLowNegativeColor, DeltaMediumNegativeColor = deltaMediumNegativeColor, DeltaHighNegativeColor = deltaHighNegativeColor, HighVolumeColor = highVolumeColor, ZeroDeltaColor = zeroDeltaColor, VolSeqColor = volSeqColor, StackedImbColor = stackedImbColor, RevPOCColor = revPOCColor, SweepColor = sweepColor, DeltaSeqColor = deltaSeqColor, DivergenceColor = divergenceColor, AbsorptionColor = absorptionColor, ExhaustionColor = exhaustionColor, VAGapColor = vAGapColor, LargeRatioColor = largeRatioColor, DeltaFlipColor = deltaFlipColor, StoppingVolumeColor = stoppingVolumeColor, EnableVolSeqSignal = enableVolSeqSignal, VolSeqDiamondOffset = volSeqDiamondOffset, EnableStackedImbSignal = enableStackedImbSignal, StackedImbDiamondOffset = stackedImbDiamondOffset, EnableReversalPOCSignal = enableReversalPOCSignal, ReversalPOCDiamondOffset = reversalPOCDiamondOffset, EnableSweepSignal = enableSweepSignal, SweepDiamondOffset = sweepDiamondOffset, EnableDeltaSeqSignal = enableDeltaSeqSignal, DeltaSeqDiamondOffset = deltaSeqDiamondOffset, EnableDivergenceSignal = enableDivergenceSignal, DivergenceDiamondOffset = divergenceDiamondOffset, EnableDeltaFlipSignal = enableDeltaFlipSignal, DeltaFlipDiamondOffset = deltaFlipDiamondOffset, EnableStoppingVolumeSignal = enableStoppingVolumeSignal, StoppingVolumeDiamondOffset = stoppingVolumeDiamondOffset, EnableAbsorptionSignal = enableAbsorptionSignal, AbsorptionDiamondOffset = absorptionDiamondOffset, EnableExhaustionSignal = enableExhaustionSignal, ExhaustionDiamondOffset = exhaustionDiamondOffset, EnableVAGapSignal = enableVAGapSignal, VAGapDiamondOffset = vAGapDiamondOffset, EnableLargeRatioSignal = enableLargeRatioSignal, LargeRatioDiamondOffset = largeRatioDiamondOffset }, input, ref cacheFootprintOrderFlow);
 		}
 	}
 }
@@ -1893,14 +2203,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.FootprintOrderFlow FootprintOrderFlow(int aggregationInterval, double valueAreaPer, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, int signalGridOffset, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableDeltaTrapSignal, int deltaTrapDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
+		public Indicators.FootprintOrderFlow FootprintOrderFlow(int aggregationInterval, double valueAreaPer, bool useSessionOpenForAggregation, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, int stoppingVolumeLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, bool enableSignalGridLegend, int signalGridOffset, System.Windows.Media.Brush barUpColor, System.Windows.Media.Brush barDownColor, System.Windows.Media.Brush barUpOutlineColor, System.Windows.Media.Brush barDownOutlineColor, System.Windows.Media.Brush barUpVAColor, System.Windows.Media.Brush barDownVAColor, int vAOpacity, System.Windows.Media.Brush pOCColor, System.Windows.Media.Brush pOCOutlineColor, System.Windows.Media.Brush pOCTextColor, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, System.Windows.Media.Brush deltaFlipColor, System.Windows.Media.Brush stoppingVolumeColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableStoppingVolumeSignal, int stoppingVolumeDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
 		{
-			return indicator.FootprintOrderFlow(Input, aggregationInterval, valueAreaPer, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, signalGridOffset, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableDeltaTrapSignal, deltaTrapDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
+			return indicator.FootprintOrderFlow(Input, aggregationInterval, valueAreaPer, useSessionOpenForAggregation, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, stoppingVolumeLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, enableSignalGridLegend, signalGridOffset, barUpColor, barDownColor, barUpOutlineColor, barDownOutlineColor, barUpVAColor, barDownVAColor, vAOpacity, pOCColor, pOCOutlineColor, pOCTextColor, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, deltaFlipColor, stoppingVolumeColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableStoppingVolumeSignal, stoppingVolumeDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
 		}
 
-		public Indicators.FootprintOrderFlow FootprintOrderFlow(ISeries<double> input , int aggregationInterval, double valueAreaPer, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, int signalGridOffset, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableDeltaTrapSignal, int deltaTrapDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
+		public Indicators.FootprintOrderFlow FootprintOrderFlow(ISeries<double> input , int aggregationInterval, double valueAreaPer, bool useSessionOpenForAggregation, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, int stoppingVolumeLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, bool enableSignalGridLegend, int signalGridOffset, System.Windows.Media.Brush barUpColor, System.Windows.Media.Brush barDownColor, System.Windows.Media.Brush barUpOutlineColor, System.Windows.Media.Brush barDownOutlineColor, System.Windows.Media.Brush barUpVAColor, System.Windows.Media.Brush barDownVAColor, int vAOpacity, System.Windows.Media.Brush pOCColor, System.Windows.Media.Brush pOCOutlineColor, System.Windows.Media.Brush pOCTextColor, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, System.Windows.Media.Brush deltaFlipColor, System.Windows.Media.Brush stoppingVolumeColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableStoppingVolumeSignal, int stoppingVolumeDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
 		{
-			return indicator.FootprintOrderFlow(input, aggregationInterval, valueAreaPer, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, signalGridOffset, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableDeltaTrapSignal, deltaTrapDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
+			return indicator.FootprintOrderFlow(input, aggregationInterval, valueAreaPer, useSessionOpenForAggregation, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, stoppingVolumeLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, enableSignalGridLegend, signalGridOffset, barUpColor, barDownColor, barUpOutlineColor, barDownOutlineColor, barUpVAColor, barDownVAColor, vAOpacity, pOCColor, pOCOutlineColor, pOCTextColor, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, deltaFlipColor, stoppingVolumeColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableStoppingVolumeSignal, stoppingVolumeDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
 		}
 	}
 }
@@ -1909,14 +2219,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.FootprintOrderFlow FootprintOrderFlow(int aggregationInterval, double valueAreaPer, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, int signalGridOffset, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableDeltaTrapSignal, int deltaTrapDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
+		public Indicators.FootprintOrderFlow FootprintOrderFlow(int aggregationInterval, double valueAreaPer, bool useSessionOpenForAggregation, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, int stoppingVolumeLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, bool enableSignalGridLegend, int signalGridOffset, System.Windows.Media.Brush barUpColor, System.Windows.Media.Brush barDownColor, System.Windows.Media.Brush barUpOutlineColor, System.Windows.Media.Brush barDownOutlineColor, System.Windows.Media.Brush barUpVAColor, System.Windows.Media.Brush barDownVAColor, int vAOpacity, System.Windows.Media.Brush pOCColor, System.Windows.Media.Brush pOCOutlineColor, System.Windows.Media.Brush pOCTextColor, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, System.Windows.Media.Brush deltaFlipColor, System.Windows.Media.Brush stoppingVolumeColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableStoppingVolumeSignal, int stoppingVolumeDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
 		{
-			return indicator.FootprintOrderFlow(Input, aggregationInterval, valueAreaPer, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, signalGridOffset, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableDeltaTrapSignal, deltaTrapDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
+			return indicator.FootprintOrderFlow(Input, aggregationInterval, valueAreaPer, useSessionOpenForAggregation, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, stoppingVolumeLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, enableSignalGridLegend, signalGridOffset, barUpColor, barDownColor, barUpOutlineColor, barDownOutlineColor, barUpVAColor, barDownVAColor, vAOpacity, pOCColor, pOCOutlineColor, pOCTextColor, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, deltaFlipColor, stoppingVolumeColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableStoppingVolumeSignal, stoppingVolumeDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
 		}
 
-		public Indicators.FootprintOrderFlow FootprintOrderFlow(ISeries<double> input , int aggregationInterval, double valueAreaPer, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, int signalGridOffset, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableDeltaTrapSignal, int deltaTrapDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
+		public Indicators.FootprintOrderFlow FootprintOrderFlow(ISeries<double> input , int aggregationInterval, double valueAreaPer, bool useSessionOpenForAggregation, int volumeSeqLookback, int stackedImbalanceLookback, int deltaSequenceLookback, int sweepLookback, int divergenceLookback, int stoppingVolumeLookback, double imbFact, double largeRatioThreshold, double smallRatioThreshold, int deltaThreshold1, int deltaThreshold2, int volumeThreshold, int nearZeroaThreshold, int exhaustionThreshold, int standardFontSize, bool enableFootprint, bool enableSummaryGrid, bool enableSignalGrid, bool enableSignalGridLegend, int signalGridOffset, System.Windows.Media.Brush barUpColor, System.Windows.Media.Brush barDownColor, System.Windows.Media.Brush barUpOutlineColor, System.Windows.Media.Brush barDownOutlineColor, System.Windows.Media.Brush barUpVAColor, System.Windows.Media.Brush barDownVAColor, int vAOpacity, System.Windows.Media.Brush pOCColor, System.Windows.Media.Brush pOCOutlineColor, System.Windows.Media.Brush pOCTextColor, System.Windows.Media.Brush deltaLowPositiveColor, System.Windows.Media.Brush deltaMediumPositiveColor, System.Windows.Media.Brush deltaHighPositiveColor, System.Windows.Media.Brush deltaLowNegativeColor, System.Windows.Media.Brush deltaMediumNegativeColor, System.Windows.Media.Brush deltaHighNegativeColor, System.Windows.Media.Brush highVolumeColor, System.Windows.Media.Brush zeroDeltaColor, System.Windows.Media.Brush volSeqColor, System.Windows.Media.Brush stackedImbColor, System.Windows.Media.Brush revPOCColor, System.Windows.Media.Brush sweepColor, System.Windows.Media.Brush deltaSeqColor, System.Windows.Media.Brush divergenceColor, System.Windows.Media.Brush absorptionColor, System.Windows.Media.Brush exhaustionColor, System.Windows.Media.Brush vAGapColor, System.Windows.Media.Brush largeRatioColor, System.Windows.Media.Brush deltaFlipColor, System.Windows.Media.Brush stoppingVolumeColor, bool enableVolSeqSignal, int volSeqDiamondOffset, bool enableStackedImbSignal, int stackedImbDiamondOffset, bool enableReversalPOCSignal, int reversalPOCDiamondOffset, bool enableSweepSignal, int sweepDiamondOffset, bool enableDeltaSeqSignal, int deltaSeqDiamondOffset, bool enableDivergenceSignal, int divergenceDiamondOffset, bool enableDeltaFlipSignal, int deltaFlipDiamondOffset, bool enableStoppingVolumeSignal, int stoppingVolumeDiamondOffset, bool enableAbsorptionSignal, int absorptionDiamondOffset, bool enableExhaustionSignal, int exhaustionDiamondOffset, bool enableVAGapSignal, int vAGapDiamondOffset, bool enableLargeRatioSignal, int largeRatioDiamondOffset)
 		{
-			return indicator.FootprintOrderFlow(input, aggregationInterval, valueAreaPer, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, signalGridOffset, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableDeltaTrapSignal, deltaTrapDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
+			return indicator.FootprintOrderFlow(input, aggregationInterval, valueAreaPer, useSessionOpenForAggregation, volumeSeqLookback, stackedImbalanceLookback, deltaSequenceLookback, sweepLookback, divergenceLookback, stoppingVolumeLookback, imbFact, largeRatioThreshold, smallRatioThreshold, deltaThreshold1, deltaThreshold2, volumeThreshold, nearZeroaThreshold, exhaustionThreshold, standardFontSize, enableFootprint, enableSummaryGrid, enableSignalGrid, enableSignalGridLegend, signalGridOffset, barUpColor, barDownColor, barUpOutlineColor, barDownOutlineColor, barUpVAColor, barDownVAColor, vAOpacity, pOCColor, pOCOutlineColor, pOCTextColor, deltaLowPositiveColor, deltaMediumPositiveColor, deltaHighPositiveColor, deltaLowNegativeColor, deltaMediumNegativeColor, deltaHighNegativeColor, highVolumeColor, zeroDeltaColor, volSeqColor, stackedImbColor, revPOCColor, sweepColor, deltaSeqColor, divergenceColor, absorptionColor, exhaustionColor, vAGapColor, largeRatioColor, deltaFlipColor, stoppingVolumeColor, enableVolSeqSignal, volSeqDiamondOffset, enableStackedImbSignal, stackedImbDiamondOffset, enableReversalPOCSignal, reversalPOCDiamondOffset, enableSweepSignal, sweepDiamondOffset, enableDeltaSeqSignal, deltaSeqDiamondOffset, enableDivergenceSignal, divergenceDiamondOffset, enableDeltaFlipSignal, deltaFlipDiamondOffset, enableStoppingVolumeSignal, stoppingVolumeDiamondOffset, enableAbsorptionSignal, absorptionDiamondOffset, enableExhaustionSignal, exhaustionDiamondOffset, enableVAGapSignal, vAGapDiamondOffset, enableLargeRatioSignal, largeRatioDiamondOffset);
 		}
 	}
 }
