@@ -22,7 +22,7 @@ A NinjaTrader 8 custom footprint indicator that aggregates Bid, Ask, Delta, Volu
 ## Requirements
 
 1. **OrderFlow+** subscription  
-2. Volumetric secondary data series (Time, Range, or Tick) added to your chart  
+2. Volumetric bars (Time, Range, or Tick) added to your chart  
 3. No Tick Replay required  
 
 ## Installation & Setup
