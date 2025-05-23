@@ -17,7 +17,7 @@ A NinjaTrader 8 custom footprint indicator that aggregates Bid, Ask, Delta, Volu
   - `Values[23]` → `pocVA_FromLow`  
   - `Values[24]` → `pocVA_FromHigh`  
   - `Values[25]` → `pocBar_FromLow`  
-  - `Values[26]` → `pocBar_FromHigh` fileciteturn0file0
+  - `Values[26]` → `pocBar_FromHigh`
 
 ## Requirements
 
