@@ -2,11 +2,13 @@
 
 A NinjaTrader 8 custom footprint indicator that aggregates Bid, Ask, Delta, Volume, Point of Control (POC), Value Area, and a rich suite of signals—designed to plug directly into your strategies.
 
+![image](https://github.com/user-attachments/assets/dd6e2d4d-2452-4bc1-92c2-026c195124e5)
+
 ## Features
 
 - **Bid/Ask/Delta/Volume aggregation** across configurable price bins  
 - **Aligned aggregation levels**, for cleaner, more consistent visuals  
-- **Two new OrderFlow signals**: Delta Flip and Stopping Volume  
+- **27 Plots**: 27 plots for use in strategies, including 12 OrderFlow signals, two new signals for Delta Flip and Stopping Volume
 - **Predator-compatible signals** for seamless use with drawing-object capture tools  
 - **Fully customizable** Bars, Value Areas, and POC styling (colors, opacity, font size)  
 - **Cleaner chart resizing** with redesigned Value Areas and POCs  
