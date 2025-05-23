@@ -25,9 +25,9 @@ A NinjaTrader 8 custom footprint indicator that aggregates Bid, Ask, Delta, Volu
 
 ## Installation & Setup
 
-1. Place the compiled `.dll` into your NinjaTrader 8 `bin\Custom\Indicators` folder.  
-2. Restart NinjaTrader 8 or reload your Indicators.  
-3. Add **FootprintOrderFlow** to any chart with a compatible base bars type.
+Download the .CS file and place it in your indicators folder.
+
+C:\Users<your user name>\Documents\NinjaTrader 8\bin\Custom\Indicators
 
 ## Configuration
 
@@ -88,13 +88,42 @@ double pocBar_FromHigh=footprint1.Values[26][0];
    ```
 2. **Instantiate** in `State.DataLoaded`:
    ```csharp
-   footprint1 = FootprintOrderFlow(
-       Closes[0],
-       // … your parameters here …
-       System.Windows.Media.Brushes.LimeGreen,
-       System.Windows.Media.Brushes.Red,
-       /* etc. */
-   );
+   Footprint1 = FootprintOrderFlow(
+				    Close,
+				    3, 70, false, 4, 2, 2, 4, 3, 3, 4.0, 30, .69, 100, 300, 2000, 8, 8,
+				    16, false, false, true, true, 40,
+					System.Windows.Media.Brushes.LimeGreen,
+					System.Windows.Media.Brushes.Red,
+					System.Windows.Media.Brushes.White,
+					System.Windows.Media.Brushes.White,
+					System.Windows.Media.Brushes.DarkGreen,
+					System.Windows.Media.Brushes.DarkRed,
+					20,
+					System.Windows.Media.Brushes.Gray,
+					System.Windows.Media.Brushes.Yellow,
+					System.Windows.Media.Brushes.White,
+				    System.Windows.Media.Brushes.DarkGreen,
+				    System.Windows.Media.Brushes.Green,
+				    System.Windows.Media.Brushes.Lime,
+				    System.Windows.Media.Brushes.DarkRed,
+				    System.Windows.Media.Brushes.Red,
+				    System.Windows.Media.Brushes.Crimson,
+				    System.Windows.Media.Brushes.Cyan,
+				    System.Windows.Media.Brushes.Gray,					
+				    System.Windows.Media.Brushes.Blue,
+				    System.Windows.Media.Brushes.Orange,
+				    System.Windows.Media.Brushes.Purple,
+				    System.Windows.Media.Brushes.Yellow,
+				    System.Windows.Media.Brushes.Magenta,
+				    System.Windows.Media.Brushes.Cyan,
+				    System.Windows.Media.Brushes.LightGreen,
+				    System.Windows.Media.Brushes.Red,
+				    System.Windows.Media.Brushes.Teal,
+				    System.Windows.Media.Brushes.Pink,
+					System.Windows.Media.Brushes.DarkGreen,
+				    System.Windows.Media.Brushes.Brown,
+				    false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3
+				);
    ```
 3. **Reference plots** by index:
    ```csharp
