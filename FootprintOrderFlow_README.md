@@ -35,7 +35,7 @@ C:\Users<your user name>\Documents\NinjaTrader 8\bin\Custom\Indicators
 
 - **Enable/disable** the footprint, summary table, signal grid, and legend independently.  
 - **Font size** can be set for both the footprint and summary table.  
-- **Opacity** and color brushes for Bars, Value Areas, and POCs are fully exposed as properties.  
+- **Customizable footprint** font size and color brushes for Bars, Value Areas, and POCs are fully exposed as properties.  
 - **Stability update**: internal key checks prevent missing-key errors during rendering.
 
 ## Plots & Signals
