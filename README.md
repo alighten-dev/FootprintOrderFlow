@@ -40,31 +40,35 @@ C:\Users<your user name>\Documents\NinjaTrader 8\bin\Custom\Indicators
 
 ## Plots & Signals
 
-| Plot / Signal      | Description                                                                                |
-|--------------------|--------------------------------------------------------------------------------------------|
-| **AggDelta**       | Net delta across all bins (ask – bid)                                                       |
-| **MinDelta**       | Lowest delta among bins                                                                     |
-| **MaxDelta**       | Highest delta among bins                                                                    |
-| **CumDelta**       | Running total of net delta over bars                                                        |
-| **TotalVol**       | Sum of bid + ask volume                                                                      |
-| **POC**            | Price level with highest volume                                                             |
-| **VAHigh**         | Upper boundary of the Value Area (e.g. 70% volume)                                          |
-| **VALow**          | Lower boundary of the Value Area                                                            |
-| **Ratio**          | Custom volume ratio for imbalance detection                                                 |
-| **DeltaPerVolume** | Normalized net delta (delta ÷ total volume)                                                 |
-| **VolSeq**         | Sequential volume increase/decrease                                                         |
-| **StackImb**       | Consecutive bin-level imbalances                                                            |
-| **RevPOC**         | POC reversal versus prior bars                                                              |
-| **Sweep**          | Low-volume “sweep” bins indicating potential breakout                                      |
-| **DeltaSeq**       | Trend detection in delta over recent bars                                                   |
-| **Divergence**     | Divergence between delta and price action                                                   |
-| **DeltaFlip**      | Sudden reversal in delta values                                                             |
-| **DeltaTrap**      | Trap patterns in delta sequences                                                            |
-| **Absorption**     | Counter-volume absorbing large delta moves                                                  |
-| **Exhaustion**     | Low extreme-end volume indicating exhaustion                                                |
-| **VAGap**          | Gap between current and previous Value Areas                                                |
-| **LargeRatio**     | High-threshold volume ratio imbalances                                                       |
-| **Stopping Volume**| Identifies bars where bid/ask volume at the extremes exceeds recent lookback averages       |
+| Plot / Signal       | Description                                                                                   |
+|---------------------|-----------------------------------------------------------------------------------------------|
+| **AggDelta**        | Net delta across all bins (ask – bid)                                                         |
+| **MinDelta**        | Lowest delta among bins                                                                       |
+| **MaxDelta**        | Highest delta among bins                                                                      |
+| **CumDelta**        | Running total of net delta over bars                                                          |
+| **TotalVol**        | Sum of bid + ask volume                                                                       |
+| **POC**             | Price level with highest volume                                                               |
+| **VAHigh**          | Upper boundary of the Value Area (e.g. 70% volume)                                            |
+| **VALow**           | Lower boundary of the Value Area                                                              |
+| **Ratio**           | Custom volume ratio for imbalance detection                                                  |
+| **DeltaPerVolume**  | Normalized net delta (delta ÷ total volume)                                                   |
+| **VolSeq**          | Sequential volume increase/decrease                                                           |
+| **StackImb**        | Consecutive bin-level imbalances                                                              |
+| **RevPOC**          | POC reversal versus prior bars                                                                |
+| **Sweep**           | Low-volume “sweep” bins indicating potential breakout                                        |
+| **DeltaSeq**        | Trend detection in delta over recent bars                                                     |
+| **Divergence**      | Divergence between delta and price action                                                     |
+| **DeltaFlip**       | Sudden reversal in delta values                                                               |
+| **Stopping Volume** | Identifies bars where bid/ask volume at the extremes exceeds recent lookback averages         |
+| **Absorption**      | Counter-volume absorbing large delta moves                                                    |
+| **Exhaustion**      | Low extreme-end volume indicating exhaustion                                                  |
+| **VAGap**           | Gap between current and previous Value Areas                                                  |
+| **LargeRatio**      | High-threshold volume ratio imbalances                                                        |
+| **pocVA_FromLow**   | Distance from Value Area low to POC (Values[23])                                              |
+| **pocVA_FromHigh**  | Distance from Value Area high to POC (Values[24])                                             |
+| **pocBar_FromLow**  | Distance from bar low to POC (Values[25])                                                     |
+| **pocBar_FromHigh** | Distance from bar high to POC (Values[26])                                                    |
+
 
 ## POC Trade Plots
 
