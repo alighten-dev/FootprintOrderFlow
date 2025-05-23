@@ -659,6 +659,7 @@ namespace NinjaTrader.NinjaScript.Indicators
                 Description = "Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC and Value Area, plus signals. Plots designed for integration with strategies. - By Alighten";
                 Name = "FootprintOrderFlow by Alighten";
                 Calculate = Calculate.OnEachTick;
+				MaximumBarsLookBack                         = MaximumBarsLookBack.TwoHundredFiftySix;
                 IsOverlay									= true;
 				DisplayInDataBox							= true;
 				DrawOnPricePanel							= true;
@@ -889,26 +890,28 @@ namespace NinjaTrader.NinjaScript.Indicators
 	            }            
 	
 	            // --- Calculate POC Position ---
-	            double range = highPrice - lowPrice;
-	            if (range > 0)
-	            {
-	                if (pocPrice > lowPrice + 2 * range / 3)
-	                    pocPos = 1;
-	                else if (pocPrice < lowPrice + range / 3)
-	                    pocPos = -1;
-	                else
-	                    pocPos = 0;
-	            }
-	            else
-	            {
-	                pocPos = 0;
-	            }
+				int totalBins = ascendingBins.Count;
+				int pocIdx    = ascendingBins.FindIndex(x => x.Key == pocPrice);
+				double frac = 0;
+				if (totalBins > 1)
+				{
+				    // Normalize 0..1, where 0=lowest bin, 1=highest bin
+				    frac = (double)pocIdx / (totalBins - 1);
+				
+				    if (frac >= 2.0/3.0)
+				        pocPos = 1;    // top third
+				    else if (frac <= 1.0/3.0)
+				        pocPos = -1;   // bottom third
+				    else
+				        pocPos = 0;    // middle third
+				}
+				else
+				    pocPos = 0;
+
 				
 				// --- Calculate detailed POC position in relation to VA, Low/High, Open/Close
-				int totalBins = ascendingBins.Count;
 	
 				// find the bin‐index of POC, VAL, VAH
-				int pocIdx = ascendingBins.FindIndex(x => x.Key == pocPrice);
 				int valIdx = ascendingBins.FindIndex(x => x.Key == val);
 				int vahIdx = ascendingBins.FindIndex(x => x.Key == vah);
 	
