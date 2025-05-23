@@ -1,189 +1,143 @@
 # FootprintOrderFlow
-NinjaTrader 8 Custom Footprint Indicator that aggregates Bid, Ask, Delta, Volume, POC, and Value Area, plus signals. Additional plots are designed for integration with strategies.
 
-## Updates
-1. The Delta Summary Table can hide the price bars. Scroll all the way down to see the instructions on how to fix this.
-2. Added Predator Signals. Scroll down to the Predator section below. Happy hunting, predators!
-3. Added support for manually setting the Font size of the Footprint and the Summary Table
-4. Important stability update: Added key checks to the OnRender to prevent missing key errors.
+A NinjaTrader 8 custom footprint indicator that aggregates Bid, Ask, Delta, Volume, Point of Control (POC), Value Area, and a rich suite of signals—designed to plug directly into your strategies.
 
-## Important
-1. This indicator requires an OrderFlow+ subscription.
-2. You do NOT need to use "Tick Replay" to use this indicator.
-3. This indicator only works with base bars that allow for Volumetric secondary dataseries. (e.g. Time, Range, Tick)
+![image](https://github.com/user-attachments/assets/dd6e2d4d-2452-4bc1-92c2-026c195124e5)
+
+## Features
+
+- **Bid/Ask/Delta/Volume aggregation** across configurable price bins  
+- **Aligned aggregation levels**, for cleaner, more consistent visuals  
+- **27 Plots**: 27 plots for use in strategies, including 12 OrderFlow signals, two new signals for Delta Flip and Stopping Volume
+- **Predator-compatible signals** for seamless use with drawing-object capture tools  
+- **Fully customizable** Bars, Value Areas, and POC styling (colors, opacity, font size)  
+- **Cleaner chart resizing** with redesigned Value Areas and POCs  
+- **Five POC-focused plots** to drive strategy entries:  
+  - `Values[5]` → `pocPrice`  
+  - `Values[23]` → `pocVA_FromLow`  
+  - `Values[24]` → `pocVA_FromHigh`  
+  - `Values[25]` → `pocBar_FromLow`  
+  - `Values[26]` → `pocBar_FromHigh`
+
+## Requirements
+
+1. **OrderFlow+** subscription  
+2. Volumetric secondary data series (Time, Range, or Tick) added to your chart  
+3. No Tick Replay required  
+
+## Installation & Setup
+
+Download the .CS file and place it in your indicators folder.
+
+C:\Users<your user name>\Documents\NinjaTrader 8\bin\Custom\Indicators
+
+## Configuration
+
+- **Enable/disable** the footprint, summary table, signal grid, and legend independently.  
+- **Font size** can be set for both the footprint and summary table.  
+- **Customizable footprint** font size and color brushes for Bars, Value Areas, and POCs are fully exposed as properties.  
+- **Stability update**: internal key checks prevent missing-key errors during rendering.
+
+## Plots & Signals
+
+| Plot / Signal      | Description                                                                                |
+|--------------------|--------------------------------------------------------------------------------------------|
+| **AggDelta**       | Net delta across all bins (ask – bid)                                                       |
+| **MinDelta**       | Lowest delta among bins                                                                     |
+| **MaxDelta**       | Highest delta among bins                                                                    |
+| **CumDelta**       | Running total of net delta over bars                                                        |
+| **TotalVol**       | Sum of bid + ask volume                                                                      |
+| **POC**            | Price level with highest volume                                                             |
+| **VAHigh**         | Upper boundary of the Value Area (e.g. 70% volume)                                          |
+| **VALow**          | Lower boundary of the Value Area                                                            |
+| **Ratio**          | Custom volume ratio for imbalance detection                                                 |
+| **DeltaPerVolume** | Normalized net delta (delta ÷ total volume)                                                 |
+| **VolSeq**         | Sequential volume increase/decrease                                                         |
+| **StackImb**       | Consecutive bin-level imbalances                                                            |
+| **RevPOC**         | POC reversal versus prior bars                                                              |
+| **Sweep**          | Low-volume “sweep” bins indicating potential breakout                                      |
+| **DeltaSeq**       | Trend detection in delta over recent bars                                                   |
+| **Divergence**     | Divergence between delta and price action                                                   |
+| **DeltaFlip**      | Sudden reversal in delta values                                                             |
+| **DeltaTrap**      | Trap patterns in delta sequences                                                            |
+| **Absorption**     | Counter-volume absorbing large delta moves                                                  |
+| **Exhaustion**     | Low extreme-end volume indicating exhaustion                                                |
+| **VAGap**          | Gap between current and previous Value Areas                                                |
+| **LargeRatio**     | High-threshold volume ratio imbalances                                                       |
+| **Stopping Volume**| Identifies bars where bid/ask volume at the extremes exceeds recent lookback averages       |
+
+## POC Trade Plots
+
+Five dedicated plots to help your strategy trade directly on the POC:
+
+```csharp
+double pocPrice      = footprint1.Values[5][0];
+double pocVA_FromLow = footprint1.Values[23][0];
+double pocVA_FromHigh= footprint1.Values[24][0];
+double pocBar_FromLow= footprint1.Values[25][0];
+double pocBar_FromHigh=footprint1.Values[26][0];
+```
+
+## Strategy Integration
+
+1. **Configure volumetric data** in `State.Configure`:
+   ```csharp
+   AddVolumetric(Instrument.FullName,
+                 BarsPeriod.BarsPeriodType,
+                 BarsPeriod.Value,
+                 VolumetricDeltaType.BidAsk,
+                 1);
+   ```
+2. **Instantiate** in `State.DataLoaded`:
+   ```csharp
+   Footprint1 = FootprintOrderFlow(
+				    Close,
+				    3, 70, false, 4, 2, 2, 4, 3, 3, 4.0, 30, .69, 100, 300, 2000, 8, 8,
+				    16, false, false, true, true, 40,
+					System.Windows.Media.Brushes.LimeGreen,
+					System.Windows.Media.Brushes.Red,
+					System.Windows.Media.Brushes.White,
+					System.Windows.Media.Brushes.White,
+					System.Windows.Media.Brushes.DarkGreen,
+					System.Windows.Media.Brushes.DarkRed,
+					20,
+					System.Windows.Media.Brushes.Gray,
+					System.Windows.Media.Brushes.Yellow,
+					System.Windows.Media.Brushes.White,
+				    System.Windows.Media.Brushes.DarkGreen,
+				    System.Windows.Media.Brushes.Green,
+				    System.Windows.Media.Brushes.Lime,
+				    System.Windows.Media.Brushes.DarkRed,
+				    System.Windows.Media.Brushes.Red,
+				    System.Windows.Media.Brushes.Crimson,
+				    System.Windows.Media.Brushes.Cyan,
+				    System.Windows.Media.Brushes.Gray,					
+				    System.Windows.Media.Brushes.Blue,
+				    System.Windows.Media.Brushes.Orange,
+				    System.Windows.Media.Brushes.Purple,
+				    System.Windows.Media.Brushes.Yellow,
+				    System.Windows.Media.Brushes.Magenta,
+				    System.Windows.Media.Brushes.Cyan,
+				    System.Windows.Media.Brushes.LightGreen,
+				    System.Windows.Media.Brushes.Red,
+				    System.Windows.Media.Brushes.Teal,
+				    System.Windows.Media.Brushes.Pink,
+					System.Windows.Media.Brushes.DarkGreen,
+				    System.Windows.Media.Brushes.Brown,
+				    false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3
+				);
+   ```
+3. **Reference plots** by index:
+   ```csharp
+   Print($"Delta={footprint1.Values[0][1]} | MaxDelta={footprint1.Values[2][1]} | …");
+   ```
+
+## Troubleshooting
+
+- If the **Summary Table** hides price bars, adjust the **Lower Margin**:
+  - Right-click Y-axis → Properties → Margin Lower  
+- Predator-style tools? Individual plot signals ensure every marker is accessible to capture tools.
 
 ## Credit
-The Bid/Ask aggregation logic was copied from the great work by iotecdotdev at https://github.com/iotecdotdev/iotecOFPlus. Check out his Footprint indicator. It's great!
 
-## About
-I created this indicator to work as a standalone indicator, but more importantly, to be integrated into your strategies. The indicator has three main components: the footprint, the summary table, and the signal grid. I have also included a legend so that you can quickly translate the signal grid. Each of these can be turned off individually, and all of them can be turned off to improve your strategy's performance.
-
-**Complete Footprint Indicator**
-![image](https://github.com/user-attachments/assets/0e2eb157-7f17-49b3-8705-2eb840077c7f)
-
-**Just the Signals**
-![image](https://github.com/user-attachments/assets/97ff74de-52d7-435f-8de5-fa522fa65f13)
-
-
-## Plots
-I have added plots for the following Order Flow values and signals. 
-
-**AggDelta:**
-Aggregated Delta. The net delta (ask minus bid volume) is calculated by summing the deltas across aggregated price bins in the current bar.
-
-**MinDelta:**
-Minimum Delta value from the aggregated price bins. It shows the lowest (most negative) delta in the bar.
-
-**MaxDelta:**
-Maximum Delta value from the aggregated price bins. It indicates the highest (most positive) delta in the bar.
-
-**CumDelta:**
-Cumulative Delta. This value sums the delta values over time, showing how net delta has evolved across bars.
-
-**TotalVol:**
-Total Volume. This is the combined volume (bid + ask) across all the aggregated bins for the current bar.
-
-**POC:**
-Point of Control. The price level where the highest volume occurred in the bar.
-
-**VAHigh:**
-Value Area High. The upper boundary of the value area (typically set to include 70% of total volume), representing the highest price within that area.
-
-**VALow:**
-Value Area Low. The lower boundary of the value area, representing the lowest price where the majority of volume has occurred.
-
-**Ratio:**
-A ratio calculated from volume data (for example, comparing volumes in adjacent bins) to help gauge potential market imbalances.
-
-**POCPos:**
-POC Position. Indicates the relative position of the Point of Control within the bar’s price range (e.g., lower third, middle, or upper third).
-
-**DeltaPerVolume:**
-Delta per Volume. This is the ratio of the bar’s delta to its total volume, providing a normalized measure of net buying or selling pressure.
-
-**VolSeq:**
-Volume Sequence Signal. This signal detects a sequential increase or decrease in volume across the aggregated price bins.
-
-**StackImb:**
-Stacked Imbalance Signal. Measures consecutive imbalances in bid versus ask volume, indicating potential strength in one direction.
-
-**RevPOC:**
-Reversal POC Signal. Generated when the Point of Control reverses its position relative to previous bars, which may indicate a market turnaround.
-
-**Sweep:**
-Sweep Signal. Triggered by a sequence of bins with very low volume, which may indicate a sweep of price levels.
-
-**DeltaSeq:**
-Delta Sequence Signal. Analyzes the trend in delta values over recent bars to detect consistent directional movement.
-
-**Divergence:**
-Divergence Signal. Identifies situations where the delta diverges from the price action (for example, when a lower price bar shows a positive delta), suggesting a possible reversal.
-
-**DeltaFlip:**
-Delta Flip Signal. Detects a sudden reversal in delta values, which can be a precursor to a change in market direction.
-
-**DeltaTrap:**
-Delta Trap Signal. Looks for trap patterns in the delta sequence that may indicate false breakouts or traps.
-
-**Absorption:**
-Absorption Signal. Indicates when a large delta move is being absorbed by counteracting volume, suggesting that the move might not be sustainable.
-
-**Exhaustion:**
-Exhaustion Signal. Highlights when one side (bid or ask) shows very low volume at the extremes of the bar, potentially indicating market exhaustion.
-
-**VAGap:**
-Value Area Gap Signal. Detects gaps between the current bar’s value area and that of previous bars, which can signal a shift in market sentiment.
-
-**LargeRatio:**
-Large Ratio Signal. Activated when a calculated volume ratio exceeds a set threshold, flagging potential market imbalances.
-
-
-## From your strategy
-Reference the object as usual.
-```
-private FootprintOrderFlowIndicator footprint1;
-```
-
-You will need the 1-tick Volumetric data series added to your configuration.
-```
-else if (State == State.Configure)
-{
-  AddVolumetric(Instrument.FullName, BarsPeriod.BarsPeriodType, BarsPeriod.Value, VolumetricDeltaType.BidAsk, 1);
-}
-```
-
-Instantiate the object in your DataLoaded.
-```
-else if (State == State.DataLoaded)
-{	
-	footprint1 = FootprintOrderFlow(
-	    Closes[0],
-	    10, 70, 4, 2, 2, 4, 3, 4.0, 30, .69, 100, 300, 2000, 8, 8,
-	    16, false, false, true, 40,
-	    System.Windows.Media.Brushes.DarkGreen,
-	    System.Windows.Media.Brushes.Green,
-	    System.Windows.Media.Brushes.Lime,
-	    System.Windows.Media.Brushes.DarkRed,
-	    System.Windows.Media.Brushes.Red,
-	    System.Windows.Media.Brushes.Crimson,
-	    System.Windows.Media.Brushes.Cyan,
-	    System.Windows.Media.Brushes.Gray,
-	    System.Windows.Media.Brushes.Blue,
-	    System.Windows.Media.Brushes.Orange,
-	    System.Windows.Media.Brushes.Purple,
-	    System.Windows.Media.Brushes.Yellow,
-	    System.Windows.Media.Brushes.Magenta,
-	    System.Windows.Media.Brushes.Cyan,
-	    System.Windows.Media.Brushes.LightGreen,
-	    System.Windows.Media.Brushes.Red,
-	    System.Windows.Media.Brushes.Teal,
-	    System.Windows.Media.Brushes.Pink,
-	    false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3, false, 3
-	);
-}
-```
-
-To access the plots, reference the appropriate plot by number.
-```
-Print("Time " + Time[1] +
-          " | Bar " + (CurrentBar - 1) +
-          " | Delta=" + footprint1.Values[0][1] +
-          " | MaxDelta=" + footprint1.Values[2][1] +
-          " | MinDelta=" + footprint1.Values[1][1] +
-          " | CumDelta=" + footprint1.Values[3][1] +
-          " | TotalVol=" + footprint1.Values[4][1] +
-          " | POC=" + footprint1.Values[5][1] +
-          " | VAH=" + footprint1.Values[6][1] +
-          " | VAL=" + footprint1.Values[7][1] +
-          " | Ratio=" + footprint1.Values[8][1] +
-          " | DeltaPerVol=" + footprint1.Values[10][1] +
-          " | VolSeq=" + footprint1.Values[11][1] +
-          " | StackImb=" + footprint1.Values[12][1] +
-          " | RevPOC=" + footprint1.Values[13][1] +
-          " | Sweep=" + footprint1.Values[14][1] +
-          " | DeltaSeq=" + footprint1.Values[15][1] +
-          " | Divergence=" + footprint1.Values[16][1] +
-          " | DeltaFlip=" + footprint1.Values[17][1] +
-          " | DeltaTrap=" + footprint1.Values[18][1] +
-          " | Absorption=" + footprint1.Values[19][1] +
-          " | Exhaustion=" + footprint1.Values[20][1] +
-          " | VAGap=" + footprint1.Values[21][1] +
-          " | LargeRatio=" + footprint1.Values[22][1]);
-```
-## Summary Table Hiding Bars
-If the summary table is hiding the price bars. Adjust the lower margin of your price scale. Right-click the Y-axis (price) -> Properties -> Margin Lower.
-
-![image](https://github.com/user-attachments/assets/176e7012-60dc-4e0b-a1c1-9c9aa389337b)
-
-Adjusting the "Margin Lower" value will prevent this:
-
-![image](https://github.com/user-attachments/assets/b9bde5d2-25a5-47bb-9b5b-001153a4dde0)
-
-## Predator Signals
-To accommodate drawing object capturing tools like Predator, I have added individual signals for each of the primary "trade signal" plots. Happy hunting, Predators!
-
-![image](https://github.com/user-attachments/assets/2b1bd8b2-2bb8-4912-8524-608c855507aa)
-![image](https://github.com/user-attachments/assets/855d2e5e-e795-47b6-b3a0-11c79ccfbfef)
-![image](https://github.com/user-attachments/assets/3811c7c5-398f-4d9f-a751-5a19f4c94e4d)
-
-
+Bid/Ask aggregation logic originally from **iotecdotdev**’s [iotecOFPlus](https://github.com/iotecdotdev/iotecOFPlus). Their Footprint indicator served as inspiration—check it out!
